@@ -1,22 +1,37 @@
 # cytofclean
 
-OK, so this is my first attempt at a package!
+<b>Initial Release - 0.1 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!</b>
 
-VERY early days with this, so tread cautiously!
+This is a small package to perform the following:
 
-It should NOT modify any of your fcs files - it should create new ones....
+- Import any number of FCS files from a CyTOF vs (Helios) (NOTE - the files should be normalised before using cytofclean!)
+- Auto-gate the Event Length
+- Auto-gate the Gaussian parameters (Centre -> Offset - Residual)
+- Auto-gate the cells (based on excluding anything high in the Ce140 Channel)
+- Output new FCS files in a subdirectory called "CyTOFClean"
+- Output a plot (PNG) of the gates used
+
+e.g. as follows:
 
 <img src="https://raw.githubusercontent.com/JimboMahoney/cytofclean/master/plots_15_28_57.png"
   align="center" />
+  
+<b>Why I created this</b>
+
+- Gating on Event, Gaussian and Beads (Cells) should be easy enough for a computer to do.
+- Reduced file size for further analysis (e.g. upload to [Cytobank](https://cytobank.org/).
+- Save time doing boring gating - spend your time gating on the real data / markers of interest!
+- I enjoy playing with data and R.
+- Learning to build my first package.
 
 <b>Install / Run:</b>
 
 Run the below, which will:
 
 1) Ensure devtools is installed (needed to install packages from github)
-2) Download and install the cytofclean package.
-3) Load the package.
-4) Run the GUI.
+2) Download and install the cytofclean package (as well as its dependencies - svDialogs, tcltk2, flowCore, ggplot2 and cowplot)
+3) Load the package
+4) Run the GUI
 
 ```
 if(!require(devtools)){
@@ -32,6 +47,6 @@ library("cytofclean")
 cytofclean_GUI()
 ```
 
-<b>Credit:</b>
+<b>Credits:</b>
 
-I re-used some of the [cytofkit](https://github.com/JinmiaoChenLab/cytofkit) code to create the GUI. Hope this is OK!
+I modified some of the [cytofkit](https://github.com/JinmiaoChenLab/cytofkit) code to create the GUI. Hope this is OK!
