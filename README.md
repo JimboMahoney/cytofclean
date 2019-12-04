@@ -31,3 +31,7 @@ library("cytofclean")
 
 cytofclean_GUI()
 ```
+
+<b>Credit:</b>
+
+I re-used some of the [cytofkit](https://github.com/JinmiaoChenLab/cytofkit) code to create the GUI. Hope this is OK!
