@@ -50,17 +50,3 @@ cytofclean_GUI()
 ## Credits:
 
 I modified some of the [cytofkit](https://github.com/JinmiaoChenLab/cytofkit) code to create the GUI. Hope this is OK!
-
-## See also:
-
-https://github.com/JimboMahoney/CyTOF-Template-Creator
-<br>
-https://github.com/JimboMahoney/CyTOF-PlotViewer
-<br>
-https://github.com/JimboMahoney/CytoBars
-<br>
-https://github.com/JimboMahoney/CytobankGraphs
-<br>
-https://github.com/JimboMahoney/Isotope-Abundance
-<br>
-https://github.com/JimboMahoney/7Zip-IMD-Batch
