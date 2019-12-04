@@ -20,7 +20,7 @@ e.g. as follows:
 
 - Gating on Event, Gaussian and Beads (Cells) should be easy enough for a computer to do.
 - Reduced file size (typically, an 80% reduction! This is primarily due to the removal of the extra Fluidigm data, which is removed after doing any import -> export of a CyTOF FCS file) for further analysis (e.g. upload to [Cytobank](https://cytobank.org/)).
-- Save time doing boring gating - spend your time gating on the real data / markers of interest!
+- Save time doing boring gating - spend your time gating on the real data / markers of interest! cytofclean is FAST - e.g. 13 seconds for an 800MB FCS file with 1,000,000 events.
 - I enjoy playing with data and R.
 - Learning to build my first package.
 
