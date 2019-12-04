@@ -60,3 +60,7 @@ https://github.com/JimboMahoney/CyTOF-PlotViewer
 https://github.com/JimboMahoney/CytoBars
 <br>
 https://github.com/JimboMahoney/CytobankGraphs
+<br>
+https://github.com/JimboMahoney/Isotope-Abundance
+<br>
+https://github.com/JimboMahoney/7Zip-IMD-Batch
