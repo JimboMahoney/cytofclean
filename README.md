@@ -50,3 +50,7 @@ cytofclean_GUI()
 ## Credits:
 
 I modified some of the [cytofkit](https://github.com/JinmiaoChenLab/cytofkit) code to create the GUI. Hope this is OK!
+
+## See also:
+
+https://github.com/JimboMahoney/CyTOF-Template-Creator
