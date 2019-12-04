@@ -16,7 +16,7 @@ e.g. as follows:
 <img src="https://raw.githubusercontent.com/JimboMahoney/cytofclean/master/plots_15_28_57.png"
   align="center" />
   
-<b>Why I created this</b>
+<b>Why I created this:</b>
 
 - Gating on Event, Gaussian and Beads (Cells) should be easy enough for a computer to do.
 - Reduced file size (typically, an 80% reduction! This is primarily due to the removal of the extra Fluidigm data, which is removed after doing any import -> export of a CyTOF FCS file) for further analysis (e.g. upload to [Cytobank](https://cytobank.org/).
