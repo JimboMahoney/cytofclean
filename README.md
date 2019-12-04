@@ -2,6 +2,10 @@
 
 OK, so this is my first attempt at a package!
 
+VERY early days with this, so tread cautiously!
+
+It should NOT modify any of your fcs files - it should create new ones....
+
 Install:
 
 1 - Ensure devtools is installed:
