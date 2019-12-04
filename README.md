@@ -11,7 +11,12 @@ It should NOT modify any of your fcs files - it should create new ones....
 
 <b>Install / Run:</b>
 
-1 - Ensure devtools is installed:
+Run the below, which will:
+
+1) Ensure devtools is installed (needed to install packages from github)
+2) Download and install the cytofclean package.
+3) Load the package.
+4) Run the GUI.
 
 ```
 if(!require(devtools)){
