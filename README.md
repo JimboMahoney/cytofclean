@@ -1,6 +1,6 @@
 # cytofclean
 
-<b>Initial Release - 0.1 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!</b>
+##<b>Initial Release - 0.1 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!</b>
 
 This is a small package to perform the following:
 
