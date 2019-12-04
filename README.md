@@ -6,6 +6,9 @@ VERY early days with this, so tread cautiously!
 
 It should NOT modify any of your fcs files - it should create new ones....
 
+<img src="https://raw.githubusercontent.com/JimboMahoney/cytofclean/master/plots_15_28_57.png"
+  align="center" />
+
 Install:
 
 1 - Ensure devtools is installed:
