@@ -54,3 +54,6 @@ I modified some of the [cytofkit](https://github.com/JinmiaoChenLab/cytofkit) co
 ## See also:
 
 https://github.com/JimboMahoney/CyTOF-Template-Creator
+https://github.com/JimboMahoney/CyTOF-PlotViewer
+https://github.com/JimboMahoney/CytoBars
+https://github.com/JimboMahoney/CytobankGraphs
