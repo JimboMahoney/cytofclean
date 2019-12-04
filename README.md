@@ -1,6 +1,6 @@
 # cytofclean
 
-## Initial Release - 0.1 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
+### Initial Release - 0.1 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
 
 This is a small package to perform the following:
 
@@ -16,7 +16,7 @@ e.g. as follows:
 <img src="https://raw.githubusercontent.com/JimboMahoney/cytofclean/master/plots_15_28_57.png"
   align="center" />
   
-<b>Why I created this:</b>
+## Why I created this:
 
 - Gating on Event, Gaussian and Beads (Cells) should be easy enough for a computer to do.
 - Reduced file size (typically, an 80% reduction! This is primarily due to the removal of the extra Fluidigm data, which is removed after doing any import -> export of a CyTOF FCS file) for further analysis (e.g. upload to [Cytobank](https://cytobank.org/)).
@@ -24,7 +24,7 @@ e.g. as follows:
 - I enjoy playing with data and R.
 - Learning to build my first package.
 
-<b>Install / Run:</b>
+## Install / Run:
 
 Run the below, which will:
 
@@ -47,6 +47,6 @@ library("cytofclean")
 cytofclean_GUI()
 ```
 
-<b>Credits:</b>
+## Credits:
 
 I modified some of the [cytofkit](https://github.com/JinmiaoChenLab/cytofkit) code to create the GUI. Hope this is OK!
