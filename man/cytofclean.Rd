@@ -12,6 +12,8 @@ Runs the cytofclean GUI to load FCS files for processing.
 The new files are written in a subdirectory CyTOFClean with _CC added to the filename (or timestamps if those files already exist).
 It detects the mode (peak) in each of the Event Length, Centre, Offset and Residual and uses the SD (standard deviation) and skew (or bias) to determine
 an appropriate position for the gate. The elimination of beads using the Ce140 Channel is simple - anything above 10^2 is considered a bead and removed.
+The resulting files are typically 80% smaller, which decreases upload speeds and storage requirements on cloud-based services such as
+Cytobank and Omiq.
 }
 \examples{
 cytofclean_GUI()
