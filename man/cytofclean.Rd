@@ -1,6 +1,6 @@
 \name{cytofclean}
 \alias{cytofclean}
-\title{cytofclean: fast auto-gating of CyTOF FCS files based on event length, gaussian parameters and beads}
+\title{cytofclean: Fast auto-gating of CyTOF FCS files based on Event length, Gaussian parameters and Beads}
 \usage{
 cytofclean_GUI()
 }
