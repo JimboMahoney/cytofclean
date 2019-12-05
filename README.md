@@ -8,7 +8,7 @@ This is a small package to perform the following:
 - Auto-gate the Event Length
 - Auto-gate the Gaussian parameters (Centre -> Offset - Residual)
 - Auto-gate the cells (based on excluding anything high in the Ce140 Channel)
-- Output new FCS files in a subdirectory called "CyTOFClean"
+- Output new FCS files in a subdirectory called "CyTOFClean" (they will have "CC" (short for cytofclean) added to their names, or timestamps if they already exist)
 - Output a plot (PNG) of the gates used
 
 e.g. as follows:
