@@ -39,6 +39,13 @@ As an example of the difference between the data that comes straight off the ins
   <br>
   <img src="https://raw.githubusercontent.com/JimboMahoney/cytofclean/master/UMAP_Clean.png"
   align="center" />
+  <br>
+  The first, upper, plot is the data as it comes off the instrument. Notice there are a few "islands" that sit quite far from the bulk of the data and have very high and very low expression of some markers. This suggests that they could be aggregates / ion cloud fusions (high marker expression) or junk or EQ beads (low / zero expression).
+   <br>
+   <br>
+ The second, lower, plot is the same dataset after being automatically cleaned using cytofclean. The islands have gone and we have a much clearer view of the data. Admittedly, I'm "cheating" a little here and making cytofclean look better / cleverer than it really is because we've done simple, standard things like gate on the Event Length and remove the beads as well as clean up the data using the Gaussian parameters. 
+ <br>
+ 
 
 ## Testing / Development:
 
