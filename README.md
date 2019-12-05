@@ -4,7 +4,7 @@
 
 This is a small package to perform the following:
 
-- Import any number of FCS files from a CyTOF v3 (Helios) (NOTE - the files should be normalised before using cytofclean!)
+- Import any number of FCS files from a CyTOF v3 (Helios) (NOTE - the files should be normalised either by CyTOF software or the [Finck method](https://github.com/ParkerICI/premessa) before using cytofclean!)
 - Auto-gate the Event Length
 - Auto-gate the Gaussian parameters (Centre -> Offset - Residual)
 - Auto-gate the cells (based on excluding anything high in the Ce140 Channel)
