@@ -64,3 +64,7 @@ cytofclean_GUI()
 ## Credits:
 
 I modified some of the [cytofkit](https://github.com/JinmiaoChenLab/cytofkit) code to create the GUI. Hope this is OK!
+
+## Inspiration:
+
+A much more complex package for flow cytometry data - [flowAI](https://bioconductor.org/packages/release/bioc/html/flowAI.html)
