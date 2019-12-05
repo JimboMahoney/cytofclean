@@ -24,6 +24,22 @@ e.g. as follows:
 - I enjoy playing with data and R.
 - Learning to build my first package.
 
+## What are "Gaussian Parameters"?
+
+Fluidigm's [website](https://www.fluidigm.com/faq/helios-9) is pretty thin when it comes to explaining exactly what these are.
+<br>
+<br>
+In simplistic terms, just like gating on the Event Length removes any spurious or "bad" data (such as ion cloud fusions), gating on the Gaussians further ensures that the data to be further analysed is of the highest quality. I have more information from Fluidigm on this, but I'm not sure if it's confidential / proprietary, so I won't post it here.
+<br>
+<br>
+As an example of the difference between the data that comes straight off the instrument vs. data that's been cleaned using Event Length and Gaussians, compare the following two UMAP plots:
+
+<img src="https://raw.githubusercontent.com/JimboMahoney/cytofclean/master/UMAP_raw.png"
+  align="center" />
+  <br>
+  <img src="https://raw.githubusercontent.com/JimboMahoney/cytofclean/master/UMAP_Clean.png"
+  align="center" />
+
 ## Testing / Development:
 
 I've tested this script on quite a few datasets and it seems fairly robust. I figure that, even if it fails to clean up the data, not much has been lost because the processing is fast and new files are created.
