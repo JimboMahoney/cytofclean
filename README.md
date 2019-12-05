@@ -11,7 +11,7 @@ This is a small package to perform the following:
 - Output new FCS files in a subdirectory called "CyTOFClean" (they will have "CC" (short for cytofclean) added to their names, or timestamps if they already exist)
 - Output a plot (PNG) of the gates used
 
-e.g. as follows:
+e.g. as follows (this is not the best example, but gives an idea):
 
 <img src="https://raw.githubusercontent.com/JimboMahoney/cytofclean/master/plots_15_28_57.png"
   align="center" />
