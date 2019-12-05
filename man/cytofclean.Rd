@@ -17,7 +17,7 @@ an appropriate position for the gate. The elimination of beads using the Ce140 C
 cytofclean_GUI()
 }
 \references{
-url{https://github.com/JimboMahoney/cytofclean}
+\url{https://github.com/JimboMahoney/cytofclean}
 }
 \author{
 James Wainwright
