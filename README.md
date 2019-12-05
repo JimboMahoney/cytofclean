@@ -13,7 +13,7 @@ This is a small package to perform the following:
 
 e.g. as follows:
 
-<img src="https://raw.githubusercontent.com/JimboMahoney/cytofclean/master/plots_08_49_48.png"
+<img src="https://raw.githubusercontent.com/JimboMahoney/cytofclean/master/plots_09_21_13.png"
   align="center" />
   
 ## Why I created this:
