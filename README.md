@@ -37,7 +37,7 @@ In addition, I've considered adding user-specified options, such as "filter stre
 
 ## Install / Run:
 
-1) Download and install [R]((https://www.r-project.org/)
+1) Download and install [R](https://www.r-project.org/)
 2) Optionally, but recommended, download an IDE such as [RStudio](https://rstudio.com/)
 
 Run the below, which will:
