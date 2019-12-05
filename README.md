@@ -24,6 +24,15 @@ e.g. as follows:
 - I enjoy playing with data and R.
 - Learning to build my first package.
 
+## Testing / Development:
+
+I've tested this script on quite a few datasets and it seems fairly robust. I figure that, even if it fails to clean up the data, not much has been lost because the processing is fast and new files are created.
+<br>
+At first, I started designing a Shiny GUI, which would allow me to show the plots and run in a browser window, with a more attractive interface. However, uploading files, even to a local instance of Shiny is incredibly slow, which defeats the purpose of a fast, simple script like this (it would take longer to upload the file than to process it!).
+<br>
+In addition, I've considered adding user-specified options, such as "filter strength" to allow tuning of the gates. This could probably be combined with an option to show the plots for feedback. But again, this somewhat defeats the purpose of the script, and you may as well gate manually if you want to change the output. Feedback would be welcome for anything that may be useful, as well as anything that may go wrong with the script once it's used on more datasets!
+
+
 ## Install / Run:
 
 Run the below, which will:
