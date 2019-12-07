@@ -87,6 +87,9 @@ cytofclean_GUI()
 ## Credits:
 
 I modified some of the [cytofkit](https://github.com/JinmiaoChenLab/cytofkit) code to create the GUI. Hope this is OK!
+<br>
+<br>
+Thanks also to El-ad of [Astrolabe Diagnostics](https://astrolabediagnostics.com/) for his advice on using the density function instead of histogram smoothing.
 
 ## Inspiration:
 
