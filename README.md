@@ -94,3 +94,4 @@ Thanks also to El-ad of [Astrolabe Diagnostics](https://astrolabediagnostics.com
 ## Inspiration:
 
 A much more complex package for flow cytometry data - [flowAI](https://bioconductor.org/packages/release/bioc/html/flowAI.html)
+
