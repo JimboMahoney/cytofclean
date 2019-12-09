@@ -1,13 +1,13 @@
 # cytofclean
 
-### Release - 0.4 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
+### Release - 0.6 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
 
 This is a small package to perform the following:
 
 - Import any number of FCS files from a CyTOF v3 (Helios) (NOTE - the files should be normalised either by CyTOF software or the [Finck method](https://github.com/ParkerICI/premessa) before using cytofclean!)
 - Auto-gate the Event Length
-- Auto-gate the Gaussian parameters (Centre -> Offset - Residual)
-- Auto-gate the cells (based on excluding anything high in the Ce140 Channel)
+- Auto-gate the Gaussian parameters (Centre -> Offset - Residual -> Width)
+- Option to auto-gate the cells (based on finding the clearest separation of cells vs. beads in one of the bead channels)
 - Output new FCS files in a subdirectory called "CyTOFClean" (they will have "CC" (short for cytofclean) added to their names, or timestamps if they already exist)
 - Output a plot (PNG) of the gates used
 
@@ -89,7 +89,7 @@ cytofclean_GUI()
 I modified some of the [cytofkit](https://github.com/JinmiaoChenLab/cytofkit) code to create the GUI. Hope this is OK!
 <br>
 <br>
-Thanks also to El-ad of [Astrolabe Diagnostics](https://astrolabediagnostics.com/) for his advice on using the density function instead of histogram smoothing.
+Thanks also to El-ad of [Astrolabe Diagnostics](https://astrolabediagnostics.com/) for his advice on using the density function instead of histogram smoothing and to Mike Leipold for his words of caution on gating beads.
 
 ## Inspiration:
 
