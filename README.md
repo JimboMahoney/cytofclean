@@ -1,6 +1,6 @@
 # cytofclean
 
-### Release - 0.6 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
+### Version 0.6 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
 
 This is a small package to perform the following:
 
