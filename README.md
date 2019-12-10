@@ -29,7 +29,19 @@ e.g. as follows:
 Fluidigm's [website](https://www.fluidigm.com/faq/helios-9) is pretty thin when it comes to explaining exactly what these are.
 <br>
 <br>
-In simplistic terms, just like gating on the Event Length removes any spurious or "bad" data (such as ion cloud fusions), gating on the Gaussians further ensures that the data to be further analysed is of the highest quality. I have more information from Fluidigm on this, but I'm not sure if it's confidential / proprietary, so I won't post it here.
+In simplistic terms, just like gating on the Event Length removes any spurious or "bad" data (such as ion cloud fusions), gating on the Gaussians further ensures that the data to be further analysed is of the highest quality. Further details can be found in the following publications:
+<br>
+<br>
+[Fluidigim Technical Note](https://www.fluidigm.com/binaries/content/documents/fluidigm/marketing/bivariate-analysis-using-the-maxpar-human-immune-monitoring-panel-kit-400270-tn-mktg/bivariate-analysis-using-the-maxpar-human-immune-monitoring-panel-kit-400270-tn-mktg/fluidigm%3Afile) - See pages 5-7.
+<br>
+[Automated Data Cleanup for Mass Cytometry](https://onlinelibrary.wiley.com/doi/full/10.1002/cyto.a.23926)
+<br>
+[Multi-site reproducibility using CyTOF](https://onlinelibrary.wiley.com/doi/full/10.1002/cyto.b.21858)
+<br>
+[Acquisition, Processing and Quality Control of Mass Cytometry Data](https://link.springer.com/protocol/10.1007/978-1-4939-9454-0_2)
+
+
+
 <br>
 <br>
 As an example of the difference between the data that comes straight off the instrument vs. data that's been cleaned using Event Length and Gaussians, compare the following two UMAP plots:
