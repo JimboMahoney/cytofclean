@@ -45,6 +45,7 @@ In simplistic terms, just like gating on the Event Length removes any spurious o
 <br>
 <br>
 As an example of the difference between the data that comes straight off the instrument vs. data that's been cleaned using Event Length and Gaussians, compare the following two UMAP plots:
+<br>
 
 <img src="https://raw.githubusercontent.com/JimboMahoney/cytofclean/master/UMAP_raw.png"
   align="center" />
