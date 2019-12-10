@@ -107,7 +107,7 @@ Thanks also to El-ad of [Astrolabe Diagnostics](https://astrolabediagnostics.com
 
 A much more complex package for flow cytometry data - [flowAI](https://bioconductor.org/packages/release/bioc/html/flowAI.html)
 
-## Details of the Cleanup methods:
+## Some Details of the Cleanup methods (nobody likes a black box!):
 
 For the Event Length and Gaussian parameters, cytofclean uses the density function to "see" the spread of the data. Where the bulk of the events are located, it will apply a cutoff at a certain density value. This ensures that the shape (i.e. bias or skew) of the data is taken into account. For example, Event Length tends to have a sharp "edge" at around 10 pushes (this is the lower cutoff in CyTOF software) and then trail off into the upper region (e.g. 100). The Gaussian parameters tend to be more symmetrical, but each are slightly different, so cytofclean has been "trained" on a multitude of "good" and "bad" datasets to ensure it tends to produce sensible results in all cases. 
 <br><br>
@@ -122,5 +122,15 @@ It then uses only this channel to remove the beads by setting the threshold to t
 Of all the processing that cytofclean does, this is the most likely to fail or produce eroneous results, hence it's optional.
 <br><br>
 Having said that, I haven't seen it fail on any of the data available to me, which includes data in which almost all the bead channels are also used as cell markers.
+
+## Disclaimer
+
+As with any piece of software, there may be bugs, so please report any [issues](https://github.com/JimboMahoney/cytofclean/issues).
+<br>
+<br>
+cytofclean should be pretty safe to use because it creates <b>new</b> files, rather than altering existing ones. Plus, it shows you plots of how it's gated the files. However, like any tool, it should not be relied upon for ensuring that your data is clean / scientifically valid.
+<br>
+<br>
+You <b>will</b> need to do further gating / clean-up (e.g. Live/Dead, doublets, as well as looking at the Event Length to determine if you are happy with the data.
 
 
