@@ -107,20 +107,20 @@ Thanks also to El-ad of [Astrolabe Diagnostics](https://astrolabediagnostics.com
 
 A much more complex package for flow cytometry data - [flowAI](https://bioconductor.org/packages/release/bioc/html/flowAI.html)
 
-## Details of the Cleanup methods
+## Details of the Cleanup methods:
 
 For the Event Length and Gaussian parameters, cytofclean uses the density function to "see" the spread of the data. Where the bulk of the events are located, it will apply a cutoff at a certain density value. This ensures that the shape (i.e. bias or skew) of the data is taken into account. For example, Event Length tends to have a sharp "edge" at around 10 pushes (this is the lower cutoff in CyTOF software) and then trail off into the upper region (e.g. 100). The Gaussian parameters tend to be more symmetrical, but each are slightly different, so cytofclean has been "trained" on a multitude of "good" and "bad" datasets to ensure it tends to produce sensible results in all cases. 
-<br>
+<br><br>
 There are some parameters (the Gaussians) that have "safety limits" applied - e.g. preventing negative or zero values - that are only necessary in "bad" datasets.
-<br>
+<br><br>
 The removal of beads is much more challenging. This is primarily because cytofclean has no idea whether the bead channels (140, 151, 153, 165 and 175) have also been used for cell markers.
-<br>
+<br><br>
 It will first look for which of these channels is present in the data. It will then use the density function of each to determine which is the most suitable for bead discrimination. It does this by finding the channel with the lowest density in the region where we don't expect to find beads - i.e. such that the separation between what might be cells and beads is clearest.
-<br>
+<br><br>
 It then uses only this channel to remove the beads by setting the threshold to the lowest density value.
-<br>
+<br><br>
 Of all the processing that cytofclean does, this is the most likely to fail or produce eroneous results, hence it's optional.
-<br>
+<br><br>
 Having said that, I haven't seen it fail on any of the data available to me, which includes data in which almost all the bead channels are also used as cell markers.
 
 
