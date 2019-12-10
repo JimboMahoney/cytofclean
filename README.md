@@ -131,6 +131,6 @@ As with any piece of software, there may be bugs, so please report any [issues](
 cytofclean should be pretty safe to use because it creates <b>new</b> files, rather than altering existing ones. Plus, it shows you plots of how it's gated the files. However, like any tool, it should not be relied upon for ensuring that your data is clean / scientifically valid.
 <br>
 <br>
-You <b>will</b> need to do further gating / clean-up (e.g. Live/Dead, doublets, as well as looking at the Event Length to determine if you are happy with the data.
+You <b>will</b> need to do further gating / clean-up (e.g. Live/Dead, doublets, as well as looking at the Event Length) to determine if you are happy with the data.
 
 
