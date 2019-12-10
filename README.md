@@ -123,7 +123,7 @@ Of all the processing that cytofclean does, this is the most likely to fail or p
 <br><br>
 Having said that, I haven't seen it fail on any of the data available to me, which includes data in which almost all the bead channels are also used as cell markers.
 
-## Disclaimer
+## Disclaimer:
 
 As with any piece of software, there may be bugs, so please report any [issues](https://github.com/JimboMahoney/cytofclean/issues).
 <br>
