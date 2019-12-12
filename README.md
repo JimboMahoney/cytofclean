@@ -4,7 +4,7 @@
 
 This is a small package to perform the following:
 
-- Import any number of FCS files from a CyTOF v3 (Helios) (NOTE - the files should be normalised either by CyTOF software or the [Finck method](https://github.com/ParkerICI/premessa) before using cytofclean!)
+- Import any number of FCS files from a CyTOF v3 (Helios) (NOTE - the files should be normalised and/or concatenated either by CyTOF software or the [Finck method](https://github.com/ParkerICI/premessa) <b>before</b> using cytofclean! See link below explaining how CyTOF FCS files are affected by any non-Fluidigm analysis tools) 
 - Auto-gate the Event Length
 - Auto-gate the Gaussian parameters (Centre -> Offset - Residual -> Width)
 - Option to auto-gate the cells (based on finding the clearest separation of cells vs. beads in one of the bead channels)
