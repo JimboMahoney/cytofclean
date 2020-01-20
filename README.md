@@ -109,7 +109,7 @@ A much more complex package for flow cytometry data - [flowAI](https://bioconduc
 
 ## Some Details of the Cleanup methods (nobody likes a black box!):
 
-For the Event Length and Gaussian parameters, cytofclean uses the density function to "see" the spread of the data. Where the bulk of the events are located, it will apply a cutoff at a certain density value. This ensures that the shape (i.e. bias or skew) of the data is taken into account. For Event Length, the lower limit is deemed to be 5% of the peak / mode. The upper limit is then set such that it's symmetrical around the mode - i.e. mode + the distance to the minimum. This is similar, and based on, the idea of a 95% Gaussian fit upper limit in [this](https://onlinelibrary.wiley.com/doi/full/10.1002/cyto.a.23960) paper.
+For the Event Length and Gaussian parameters, cytofclean uses the density function to "see" the spread of the data. Where the bulk of the events are located, it will apply a cutoff at a certain density value. This ensures that the shape (i.e. bias or skew) of the data is taken into account. Event Length could probably be made more stringent - i.e. something like [this](https://onlinelibrary.wiley.com/doi/full/10.1002/cyto.a.23960) paper. However, I've taken the approach that CytofClean should "undergate" rather than "overgate" - i.e. you can always tighten up the gates later if you wish. Event Length is probably the only one you may wish to do this with, to further remove doublets / ion cloud fusions.
 
 The Gaussian parameters tend to be more symmetrical, but each are slightly different, so cytofclean has been "trained" on a multitude of "good" and "bad" datasets to ensure it tends to produce sensible results in all cases. 
 <br><br>
