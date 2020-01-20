@@ -1,6 +1,6 @@
 # cytofclean
 
-### Version 0.6 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
+### Version 0.7 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
 
 This is a small package to perform the following:
 
@@ -109,7 +109,9 @@ A much more complex package for flow cytometry data - [flowAI](https://bioconduc
 
 ## Some Details of the Cleanup methods (nobody likes a black box!):
 
-For the Event Length and Gaussian parameters, cytofclean uses the density function to "see" the spread of the data. Where the bulk of the events are located, it will apply a cutoff at a certain density value. This ensures that the shape (i.e. bias or skew) of the data is taken into account. For example, Event Length tends to have a sharp "edge" at around 10 pushes (this is the lower cutoff in CyTOF software) and then trail off into the upper region (e.g. 100). The Gaussian parameters tend to be more symmetrical, but each are slightly different, so cytofclean has been "trained" on a multitude of "good" and "bad" datasets to ensure it tends to produce sensible results in all cases. 
+For the Event Length and Gaussian parameters, cytofclean uses the density function to "see" the spread of the data. Where the bulk of the events are located, it will apply a cutoff at a certain density value. This ensures that the shape (i.e. bias or skew) of the data is taken into account. For Event Length, the lower limit is deemed to be 5% of the peak / mode. The upper limit is then set such that it's symmetrical around the mode - i.e. mode + the distance to the minimum. This is similar, and based on, the idea of a 95% Gaussian fit upper limit in [this](https://onlinelibrary.wiley.com/doi/full/10.1002/cyto.a.23960) paper.
+
+The Gaussian parameters tend to be more symmetrical, but each are slightly different, so cytofclean has been "trained" on a multitude of "good" and "bad" datasets to ensure it tends to produce sensible results in all cases. 
 <br><br>
 There are some parameters (the Gaussians) that have "safety limits" applied - e.g. preventing negative or zero values - that are only necessary in "bad" datasets.
 <br><br>
