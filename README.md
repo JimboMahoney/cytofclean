@@ -105,7 +105,12 @@ Thanks also to El-ad of [Astrolabe Diagnostics](https://astrolabediagnostics.com
 
 ## Inspiration:
 
-A much more complex package for flow cytometry data - [flowAI](https://bioconductor.org/packages/release/bioc/html/flowAI.html)
+A much more complex package for flow cytometry data - flowAI.
+<br>
+<br>
+[Bioconductor](https://bioconductor.org/packages/release/bioc/html/flowAI.html) 
+<br>
+[Original Paper](https://academic.oup.com/bioinformatics/article/32/16/2473/2240408)
 
 ## Some Details of the Cleanup methods (nobody likes a black box!):
 
