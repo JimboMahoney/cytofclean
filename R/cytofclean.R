@@ -169,6 +169,7 @@ tkgrid(tklabel(tt, text = "\n"), padx = cell_width)  # leave blank line
 
 tkgrid(tklabel(tt, text = ""),tklabel(tt, text = "NOTE: Only Helios / CyTOF v3 files are supported!"))
 tkgrid(tklabel(tt, text = ""),tklabel(tt, text = "Files should be normalised before using CyTOFClean."))
+tkgrid(tklabel(tt, text = ""),tklabel(tt, text = "Use caution with bead removal if all bead channels contain markers!"))
 
 
 tkgrid(tklabel(tt, text = "\n"), padx = cell_width)  # leave blank line
@@ -179,7 +180,7 @@ tkgrid(tklabel(tt, text = ""), gate_beads, tklabel(tt, text = ""),padx = cell_wi
 tkgrid(tklabel(tt, text = ""), submit_button,
        quit_button, padx = cell_width)
 tkgrid.configure(quit_button, sticky = "w")
-tkgrid(tklabel(tt, text = ""),tklabel(tt, text = ""),tklabel(tt, text = "Version: 0.7 beta"))
+tkgrid(tklabel(tt, text = ""),tklabel(tt, text = ""),tklabel(tt, text = "Version: 0.8 beta"))
 
 tkwait.window(tt)
 
@@ -561,7 +562,7 @@ if (tclvalue(ret_var) != "OK") {
   }
 
   # Get Y axis for plots
-  OffsetYAxis <- round((mean(OffsetMax)-mean(OffsetMin)) * 5,-1)
+  OffsetYAxis <- round((mean(OffsetMax) - mean(OffsetMin)) * 5,-1)
 
   options(warn=-1)
   ## Plot x as Time and Y as Offset
@@ -632,19 +633,20 @@ if (tclvalue(ret_var) != "OK") {
     Residual_Density[[i]] <-  density(exprs(fcs_raw[[i]]$`Residual`))
   }
 
-  ResidualMode <- NULL
-  ResidualGauss <- NULL
-  ResidualSigma <- NULL
+  # Mode, Gauss and Sigma work well on most data, but not concatenated where there are breaks!
+  #ResidualMode <- NULL
+  #ResidualGauss <- NULL
+  #ResidualSigma <- NULL
   ResidualMin <- NULL
   ResidualMax <- NULL
   for (i in 1:length(filesToOpen)){
-    ResidualMode[i] <- Residual_Density[[i]]$x[Residual_Density[[i]]$y == max(Residual_Density[[i]]$y)]
-    ResidualGauss[i] <- min(Residual_Density[[i]]$x[Residual_Density[[i]]$y > max(Residual_Density[[i]]$y)*.682])
-    ResidualSigma[i] <- ResidualMode[i] - ResidualGauss[i]
-    ResidualMin[i] <- ResidualMode[i] - 2 * ResidualSigma[i]
-    ResidualMax[i] <- ResidualMode[i] + 2.5 * ResidualSigma[i]
-    #ResidualMin[i] <- min(Residual_Density[[i]]$x[Residual_Density[[i]]$y>max(Residual_Density[[i]]$y)*.15])
-    #ResidualMax[i] <- max(Residual_Density[[i]]$x[Residual_Density[[i]]$y>max(Residual_Density[[i]]$y)*.15])
+    #ResidualMode[i] <- Residual_Density[[i]]$x[Residual_Density[[i]]$y == max(Residual_Density[[i]]$y)]
+    #ResidualGauss[i] <- min(Residual_Density[[i]]$x[Residual_Density[[i]]$y > max(Residual_Density[[i]]$y)*.682])
+    #ResidualSigma[i] <- ResidualMode[i] - ResidualGauss[i]
+    #ResidualMin[i] <- ResidualMode[i] - 2 * ResidualSigma[i]
+    #ResidualMax[i] <- ResidualMode[i] + 2.5 * ResidualSigma[i]
+    ResidualMin[i] <- min(Residual_Density[[i]]$x[Residual_Density[[i]]$y>max(Residual_Density[[i]]$y)*.3])
+    ResidualMax[i] <- max(Residual_Density[[i]]$x[Residual_Density[[i]]$y>max(Residual_Density[[i]]$y)*.3])
   }
 
   #plot(Residual_Density[[1]]$x, Residual_Density[[1]]$y)
@@ -668,8 +670,8 @@ if (tclvalue(ret_var) != "OK") {
     FinalEvents[i] <- FinalEvents[i]/OrigEvents[i]
   }
 
-  # Get Mode for Y axis
-  ResidualYAxis <- round((mean(ResidualMax)-mean(ResidualMin)) * 4,-2)
+  # Get Scale for Y axis
+  ResidualYAxis <- round((mean(ResidualMax)-mean(ResidualMin)) * 3,-2)
 
   options(warn=-1)
   ## Plot x as Time and Y as Residual
