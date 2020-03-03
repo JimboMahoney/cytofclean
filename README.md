@@ -1,6 +1,6 @@
 # cytofclean
 
-### Version 0.8 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
+### Version 0.9 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
 
 This is a small package to perform the following:
 
@@ -120,7 +120,9 @@ The Gaussian parameters tend to be more symmetrical, but each are slightly diffe
 <br><br>
 There are some parameters (the Gaussians) that have "safety limits" applied - e.g. preventing negative or zero values - that are only necessary in "bad" datasets.
 <br><br>
-The removal of beads is much more challenging. This is primarily because cytofclean has no idea whether the bead channels (140, 151, 153, 165 and 175) have also been used for cell markers.
+The removal of beads is much more challenging. This is primarily because cytofclean has no idea whether the bead channels (140, 151, 153, 165 and 175) have also been used for cell markers. 
+<br><br>
+UPDATE Version 0.9 - now the user can specify which bead channel(s) to use. If more than one channel is selected, cytofclean will determine which is the "best" channel to use as per the below.
 <br><br>
 It will first look for which of these channels is present in the data. It will then use the density function of each to determine which is the most suitable for bead discrimination. It does this by finding the channel with the lowest density in the region where we don't expect to find beads - i.e. such that the separation between what might be cells and beads is clearest.
 <br><br>
