@@ -180,7 +180,7 @@ tkgrid(tklabel(tt, text = ""), gate_beads, tklabel(tt, text = ""),padx = cell_wi
 tkgrid(tklabel(tt, text = ""), submit_button,
        quit_button, padx = cell_width)
 tkgrid.configure(quit_button, sticky = "w")
-tkgrid(tklabel(tt, text = ""),tklabel(tt, text = ""),tklabel(tt, text = "Version: 0.8 beta"))
+tkgrid(tklabel(tt, text = ""),tklabel(tt, text = ""),tklabel(tt, text = "Version: 0.9 beta"))
 
 tkwait.window(tt)
 
@@ -250,6 +250,16 @@ if (tclvalue(ret_var) != "OK") {
     cytofclean_GUI()
   }else{
 
+  # Select bead channels for removal
+  UserBeadChannels <- NULL
+  if (tclvalue(gbvalue)==1){
+    UserBeadChannels <- tk_select.list(params$desc[grep("140Ce|142Ce|151Eu|153Eu|165Ho|175Lu|176Lu", params$desc)], multiple=TRUE,title="Select bead channels that do not contain markers. Hit cancel to use all.")
+  }
+
+  # If user cancels dialog box, use all markers.
+  if(length(UserBeadChannels)==0 ){
+    UserBeadChannels <- params$desc[grep("140Ce|142Ce|151Eu|153Eu|165Ho|175Lu|176Lu", params$desc)]
+  }
 
   # Advance progress bar
   setTkProgressBar(pb, 2, label="Gating Events ...")
@@ -859,7 +869,11 @@ if (tclvalue(ret_var) != "OK") {
   }
 
   # Get Bead Channels present
-  Bead_Channels <- params$name[grepl("140|151|153|165|175", params$name)]
+  #Bead_Channels <- params$name[grepl("140|151|153|165|175", params$name)]
+  # Or limit to only those selected by users
+  # Convert UserBeadChannels to "grepable" list
+  UserBeadChannels <- paste(as.numeric(substr(UserBeadChannels,1,3)), collapse = "|")
+  Bead_Channels <- params$name[grepl(UserBeadChannels,params$name)]
 
   # Calculate density of these channels for each file
   Bead_Density <- NULL
