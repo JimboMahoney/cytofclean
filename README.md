@@ -2,6 +2,8 @@
 
 ### Version 0.9 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
 
+### CURRENT MAJOR ISSUE - cytofclean does not asinh transform the parameters, leading to different results than e.g. cytobank!
+
 This is a small package to perform the following:
 
 - Import any number of FCS files from a CyTOF v3 (Helios) (NOTE - the files should be normalised and/or concatenated either by CyTOF software or the [Finck method](https://github.com/ParkerICI/premessa) <b>before</b> using cytofclean! See link below explaining how CyTOF FCS files are affected by any non-Fluidigm analysis tools) 
