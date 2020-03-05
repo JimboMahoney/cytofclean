@@ -1,8 +1,6 @@
 # cytofclean
 
-### Version 0.9 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
-
-### CURRENT MAJOR ISSUE - cytofclean does not asinh transform the parameters, leading to different results than e.g. cytobank!
+### Version 1.0 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
 
 This is a small package to perform the following:
 
@@ -116,7 +114,9 @@ A much more complex package for flow cytometry data - flowAI.
 
 ## Some Details of the Cleanup methods (nobody likes a black box!):
 
-For the Event Length and Gaussian parameters, cytofclean uses the density function to "see" the spread of the data. Where the bulk of the events are located, it will apply a cutoff at a certain density value. This ensures that the shape (i.e. bias or skew) of the data is taken into account. Event Length could probably be made more stringent - i.e. something like [this](https://onlinelibrary.wiley.com/doi/full/10.1002/cyto.a.23960) paper. However, I've taken the approach that CytofClean should "undergate" rather than "overgate" - i.e. you can always tighten up the gates later if you wish. Event Length is probably the only one you may wish to do this with, to further remove doublets / ion cloud fusions.
+UPDATE Version 1.0: CyTOFClean now transforms the Gaussian parameters and bead channels like cytobank. e.g. using an arcsinh cofactor 5 transform and scaling. Imporantly, it does this in a <b>copy</b> of the data, not the original data. Thus the output graphs will have a similar, but not identical, scale to that of cytobank. This has dramatically improved the robustness and made CyTOFClean much less aggressive in its gating.
+
+For the Event Length and Gaussian parameters, cytofclean uses the density function to "see" the spread of the data. Where the bulk of the events are located, it will apply a cutoff at a certain density value. This ensures that the shape (i.e. bias or skew) of the data is taken into account. Event Length could probably be made more stringent - i.e. something like [this](https://onlinelibrary.wiley.com/doi/full/10.1002/cyto.a.23960) paper. However, I've taken the approach that CytofClean should "undergate" rather than "overgate" - i.e. you can always tighten up the gates later if you wish. Event Length is probably the only one you may wish to do this with, to further remove doublets / ion cloud fusions. Version 1.0 now includes a hard cutoff and events less than 10 pushes and greater than 50 will be excluded. This generally only comes into play in "bad" datasets.
 
 The Gaussian parameters tend to be more symmetrical, but each are slightly different, so cytofclean has been "trained" on a multitude of "good" and "bad" datasets to ensure it tends to produce sensible results in all cases. 
 <br><br>
@@ -124,11 +124,11 @@ There are some parameters (the Gaussians) that have "safety limits" applied - e.
 <br><br>
 The removal of beads is much more challenging. This is primarily because cytofclean has no idea whether the bead channels (140, 151, 153, 165 and 175) have also been used for cell markers. 
 <br><br>
-UPDATE Version 0.9 - now the user can specify which bead channel(s) to use. If more than one channel is selected, cytofclean will determine which is the "best" channel to use as per the below.
+UPDATE Version 1.0 - The user can specify which bead channel(s) to use. If more than one channel is selected, cytofclean will determine which is the "best" channel to use as per the below.
 <br><br>
-It will first look for which of these channels is present in the data. It will then use the density function of each to determine which is the most suitable for bead discrimination. It does this by finding the channel with the lowest density in the region where we don't expect to find beads - i.e. such that the separation between what might be cells and beads is clearest.
+It will first look for which of these channels is present in the data. It will then use the density function of each to determine which is the most suitable for bead discrimination. It does this by finding the channel with the clearest bead signal / seaparation between beads and not-beads - i.e. such that the separation between what might be cells and beads is clearest.
 <br><br>
-It then uses only this channel to remove the beads by setting the threshold to the lowest density value.
+It then uses only this channel to remove the beads by setting the threshold to a suitable value below the bead signal.
 <br><br>
 Of all the processing that cytofclean does, this is the most likely to fail or produce eroneous results, hence it's optional.
 <br><br>
