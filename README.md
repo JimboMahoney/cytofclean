@@ -78,7 +78,7 @@ In addition, I've considered adding user-specified options, such as "filter stre
 Run the below, which will:
 
 1) Ensure devtools is installed (needed to install packages from github)
-2) Download and install the cytofclean package (as well as its dependencies - tcltk2, flowCore, ggplot2 and cowplot)
+2) Download and install the cytofclean package (as well as its dependencies - tcltk2, flowCore, ggplot2, cowplot and scales)
 3) Load the package
 4) Run the GUI
 
