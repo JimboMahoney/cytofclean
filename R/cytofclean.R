@@ -2,9 +2,6 @@
 ### Credit for GUI code: https://github.com/JinmiaoChenLab/cytofkit
 ### Thanks to El-ad of Astrolabe for his advice on using density function
 
-### TODO - Update depedencies - scales
-### TODO - Update Readme about Gaussian scaling
-
 # Run: cytofclean_GUI()
 
 ##################
