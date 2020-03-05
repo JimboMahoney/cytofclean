@@ -126,7 +126,7 @@ The removal of beads is much more challenging. This is primarily because cytofcl
 <br><br>
 UPDATE Version 1.0 - The user can specify which bead channel(s) to use. If more than one channel is selected, cytofclean will determine which is the "best" channel to use as per the below.
 <br><br>
-It will first look for which of these channels is present in the data. It will then use the density function of each to determine which is the most suitable for bead discrimination. It does this by finding the channel with the clearest bead signal / seaparation between beads and not-beads - i.e. such that the separation between what might be cells and beads is clearest.
+It will first look for which of these channels is present in the data. It will then use the density function of each to determine which is the most suitable for bead discrimination. It does this by finding the channel with the clearest bead signal / separation between beads and not-beads.
 <br><br>
 It then uses only this channel to remove the beads by setting the threshold to a suitable value below the bead signal.
 <br><br>
