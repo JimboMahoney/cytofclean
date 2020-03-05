@@ -2,6 +2,8 @@
 ### Credit for GUI code: https://github.com/JinmiaoChenLab/cytofkit
 ### Thanks to El-ad of Astrolabe for his advice on using density function
 
+### TODO - Update depedencies - scales
+### TODO - Update Readme about Gaussian scaling
 
 # Run: cytofclean_GUI()
 
@@ -26,6 +28,10 @@
 #if (!require("cowplot")) {
 #  install.packages("cowplot", dependencies = TRUE)
 #  library(cowplot)
+#}
+#if (!require("scales")) {
+#  install.packages("scales", dependencies = TRUE)
+#  library(scales)
 #}
 
 
@@ -180,7 +186,7 @@ tkgrid(tklabel(tt, text = ""), gate_beads, tklabel(tt, text = ""),padx = cell_wi
 tkgrid(tklabel(tt, text = ""), submit_button,
        quit_button, padx = cell_width)
 tkgrid.configure(quit_button, sticky = "w")
-tkgrid(tklabel(tt, text = ""),tklabel(tt, text = ""),tklabel(tt, text = "Version: 0.9 beta"))
+tkgrid(tklabel(tt, text = ""),tklabel(tt, text = ""),tklabel(tt, text = "Version: 1.0 beta"))
 
 tkwait.window(tt)
 
@@ -222,6 +228,37 @@ if (tclvalue(ret_var) != "OK") {
   # Note that this assumes that all files have the same parameters!
   # Possible issues if they differ...
   params <- pData(parameters(fcs_raw[[1]]))
+
+  #Find Gaussian parameter positions
+  GaussianPos <- grep("Center|Offset|Width|Residual", params$name)
+  # Find Time position
+  TimePos <- grep("Time", params$name)
+
+  # Arcsinh transform the Gaussians into a new data frame, since we don't want to affect the actual data
+  # Also scale approximating cytobank
+  cofactor <- 5
+  Scale <- c(-5,12000)
+  # Bodge to get approx. figures for cytobank
+  # Center/Offset/Width/Residual
+  cytobank_scale <- c(10,80,80,40)
+  FCSDATAGaussians <- NULL
+  for (i in 1:length(filesToOpen)){
+    FCSDATAGaussians[[i]] <- as.data.frame(asinh(exprs(fcs_raw[[i]][,GaussianPos])/cofactor))
+     for (j in 1:length(GaussianPos)){
+        FCSDATAGaussians[[i]][,j] <- rescale(FCSDATAGaussians[[i]][,j],to = Scale)/cytobank_scale[j]
+      }
+  }
+  # Add Time
+  for (i in 1:length(filesToOpen)){
+    FCSDATAGaussians[[i]]$Time <- exprs(fcs_raw[[i]][,TimePos])
+  }
+
+
+  #plot(density(FCSDATAGaussians$Center))
+  #plot(density(FCSDATAGaussians$Offset))
+  #plot(density(FCSDATAGaussians$Width))
+  #plot(density(FCSDATAGaussians$Residual))
+
 
   # Check for Event_length
   if ("Event_length" %in% params$name == FALSE){
@@ -291,7 +328,7 @@ if (tclvalue(ret_var) != "OK") {
 
   # Convert to mins
   TimeDiv <- 60 * 1000
-  maxtime <- round(maxtime/TimeDiv,1)
+  maxtime <- round(maxtime/TimeDiv,2)
 
   # Create colour scale for plot
   # The extra "black" is needed to make the colour scale appear decent - otherwise it doesn't show
@@ -305,7 +342,7 @@ if (tclvalue(ret_var) != "OK") {
     Event_Density[[i]] <-  density(exprs(fcs_raw[[i]]$`Event_length`))
   }
 
-  #plot(Event_Density[[3]]$x, Event_Density[[1]]$y, type="l")
+  #plot(Event_Density[[1]]$x, Event_Density[[1]]$y, type="l")
 
   # Set min and max based on spread of density
   # Modified based on https://onlinelibrary.wiley.com/doi/full/10.1002/cyto.a.23960
@@ -326,8 +363,15 @@ if (tclvalue(ret_var) != "OK") {
     #EventMin[i] <- EventMode[i] - 2 * EventSigma[i]
     #EventMax[i] <- EventMode[i] + 2 * EventSigma[i]
     EventMin[i] <- min(Event_Density[[i]]$x[Event_Density[[i]]$y>max(Event_Density[[i]]$y)*.3])
-    EventMax[i] <- max(Event_Density[[i]]$x[Event_Density[[i]]$y>max(Event_Density[[i]]$y)*.3])
+    EventMax[i] <- max(Event_Density[[i]]$x[Event_Density[[i]]$y>max(Event_Density[[i]]$y)*.1])
   }
+
+  # Hard cutoffs for Events - useful if datasets are poor
+  for (i in 1:length(filesToOpen)){
+    EventMax[i][EventMax[i]>50] <- 50
+    EventMin[i][EventMin[i]<10] <- 10
+  }
+
 
   # % Cells After Event gating
   AfterEvent <- NULL
@@ -343,7 +387,7 @@ if (tclvalue(ret_var) != "OK") {
   for (i in 1:length(filesToOpen)){
   EventPlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Event_length)) +
     # Only label 0 and max on X Axis
-    scale_x_continuous(breaks=seq(0,maxtime[i],maxtime[i])) +
+    scale_x_continuous(breaks=seq(0,round(maxtime[i],1),round(maxtime[i]/2,1))) +
     # Plot all points
     geom_point(shape=".",alpha=1)+
     # Fill with transparent colour fill using density stats
@@ -366,16 +410,28 @@ if (tclvalue(ret_var) != "OK") {
     xlab(NULL) +
     #xlab("Time (min)")+
     ggtitle(filesToOpen[i],subtitle = paste(round(AfterEvent[i]*100,1),"%")) +
-    theme(plot.title = element_text(size=8, hjust=0.5), plot.subtitle = element_text(size=8))
+    theme(plot.title = element_text(size=8, hjust=0.5), plot.subtitle = element_text(size=8))+
+    coord_cartesian(expand = FALSE)
   }
   options(warn=0)
 
-
-  #Gate Events
+  # Get List of Rows (Events) to keep
+  EventsToKeep <- NULL
   for (i in 1:length(filesToOpen)){
-    fcs_raw[[i]] <- fcs_raw[[i]][exprs(fcs_raw[[i]]$`Event_length`)<EventMax[i]
-                                 & exprs(fcs_raw[[i]]$`Event_length`)>EventMin[i]]
+    EventsToKeep[[i]] <- which(exprs(fcs_raw[[i]]$`Event_length`) < EventMax[i] & exprs(fcs_raw[[i]]$`Event_length`) > EventMin[i])
   }
+
+  # Gate Gaussian Data
+  for (i in 1:length(filesToOpen)){
+    FCSDATAGaussians[[i]] <- FCSDATAGaussians[[i]][EventsToKeep[[i]],]
+  }
+
+  #And Gate Events in actual flowSet
+  for (i in 1:length(filesToOpen)){
+    fcs_raw[[i]] <- fcs_raw[[i]][EventsToKeep[[i]],]
+  }
+
+
 
   # Advance progress bar
   setTkProgressBar(pb, 3, label="Gating Centre ...")
@@ -407,16 +463,17 @@ if (tclvalue(ret_var) != "OK") {
   # Get density of Centre - note English UK vs US spelling!
   Centre_Density <- NULL
   for (i in 1:length(filesToOpen)){
-    Centre_Density[[i]] <-  density(exprs(fcs_raw[[i]]$`Center`))
+    # Get density plot
+    #Centre_Density[[i]] <-  density(exprs(fcs_raw[[i]]$`Center`))
+    Centre_Density[[i]] <-  density(FCSDATAGaussians[[i]]$Center)
   }
-
 
   # Flatten out the curve to remove the low peak and correct false detection of minimum value
   for (i in 1:length(filesToOpen)){
-    Centre_Density[[i]]$y[Centre_Density[[i]]$x < 300] <- 0
+    Centre_Density[[i]]$y[Centre_Density[[i]]$x < 250] <- 0
   }
 
-  #plot(Centre_Density[[3]]$x, Centre_Density[[3]]$y)
+  #plot(Centre_Density[[1]]$x, Centre_Density[[1]]$y, log="x")
 
   # Set min and max based on density spread
   #CentreMode <- NULL
@@ -430,41 +487,49 @@ if (tclvalue(ret_var) != "OK") {
     #CentreSigma[i] <- CentreMode[i] - CentreGauss[i]
     #CentreMin[i] <- CentreMode[i] - 1.5 * CentreSigma[i]
     #CentreMax[i] <- CentreMode[i] + 1.5 * CentreSigma[i]
-    CentreMin[i] <- min(Centre_Density[[i]]$x[Centre_Density[[i]]$y > max(Centre_Density[[i]]$y)*.25])
-    CentreMax[i] <- max(Centre_Density[[i]]$x[Centre_Density[[i]]$y > max(Centre_Density[[i]]$y)*.25])
+    CentreMin[i] <- min(Centre_Density[[i]]$x[Centre_Density[[i]]$y > max(Centre_Density[[i]]$y)*.1])
+    CentreMax[i] <- max(Centre_Density[[i]]$x[Centre_Density[[i]]$y > max(Centre_Density[[i]]$y)*.1])
   }
 
 
   # Clip any min to a low value - this helps with very "dirty" samples
   #CentreMin[CentreMin < 300] <- 300
 
+  # Get List of Rows (Events) to keep
+  EventsToKeep <- NULL
+  for (i in 1:length(filesToOpen)){
+    EventsToKeep[[i]] <- which(FCSDATAGaussians[[i]]$Center < CentreMax[i] & FCSDATAGaussians[[i]]$Center > CentreMin[i])
+  }
 
   # % Cells After Centre gating
   AfterCentre <- NULL
   for (i in 1:length(filesToOpen)){
-    AfterCentre[i] <- sum(exprs(fcs_raw[[i]]$`Center`) < CentreMax[i]
-                          & exprs(fcs_raw[[i]]$`Center`) > CentreMin[i])/length(exprs(fcs_raw[[i]]$`Center`))
+  #  AfterCentre[i] <- sum(exprs(fcs_raw[[i]]$`Center`) < CentreMax[i] & exprs(fcs_raw[[i]]$`Center`) > CentreMin[i]) / length(exprs(fcs_raw[[i]]$`Center`))
+    AfterCentre[i] <- length(EventsToKeep[[i]]) / length(exprs(fcs_raw[[i]]$`Center`))
   }
 
   # Get % of original
   FinalEvents <- NULL
   for (i in 1:length(filesToOpen)){
-    FinalEvents[i] <- length(exprs(fcs_raw[[i]]$`Time`)) * AfterCentre[i]
-
-    FinalEvents[i] <- FinalEvents[i]/OrigEvents[i]
+    #FinalEvents[i] <- length(exprs(fcs_raw[[i]]$`Time`)) * AfterCentre[i]
+    #FinalEvents[i] <- FinalEvents[i]/OrigEvents[i]
+    FinalEvents[i] <- length(EventsToKeep[[i]])/OrigEvents[i]
   }
 
   # Set Y axis for plots suitably
-  CentreYAxis <- round((mean(CentreMax)-mean(CentreMin)) * 5,-2)
+  #CentreYAxis <- round((mean(CentreMax)-mean(CentreMin)) * 6,-2)
+  CentreYAxis <- round(mean(CentreMax) * 1.1,0)
+
 
 
   options(warn=-1)
   ## Plot x as Time and Y as Center
   CentrePlot <- list()
   for (i in 1:length(filesToOpen)){
-  CentrePlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Center)) +
+  #CentrePlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Center)) +
+  CentrePlot[[i]] <- ggplot(FCSDATAGaussians[[i]][RandEvents[[i]],], aes(x=Time/TimeDiv, y=Center)) +
     # Only label 0 and max on X Axis
-    scale_x_continuous(breaks=seq(0,maxtime[i],maxtime[i])) +
+    scale_x_continuous(breaks=seq(0,round(maxtime[i],1),round(maxtime[i]/2,1))) +
     # Plot all points
     geom_point(shape=".",alpha=1)+
     # Fill with transparent colour fill using density stats
@@ -474,6 +539,8 @@ if (tclvalue(ret_var) != "OK") {
     scale_fill_gradientn(colours=colfunc(128)) +
     # Force Y axis to start at zero and stop at maxEvent
     ylim(0,CentreYAxis) +
+    # Log Scale
+    #scale_y_log10(limits=c(1,12000),labels = scales::trans_format('log10',scales::math_format(10^.x))) +
     # Hide Y axis values if desired
     #theme(axis.text.y = element_blank(), axis.ticks = element_blank()) +
     # Hide legend
@@ -486,13 +553,20 @@ if (tclvalue(ret_var) != "OK") {
     xlab(NULL) +
     #xlab("Time (min)")+
   ggtitle(paste(round(AfterCentre[i]*100,1)," % (", round(FinalEvents[i]*100,1), " % of total)",sep=""))  +
-    theme(plot.title = element_text(size=8))
+    theme(plot.title = element_text(size=8))+
+    coord_cartesian(expand = FALSE)
   }
   options(warn=0)
 
   # Gate Centre
   for (i in 1:length(filesToOpen)){
-    fcs_raw[[i]] <- fcs_raw[[i]][exprs(fcs_raw[[i]]$`Center`)<CentreMax[i] & exprs(fcs_raw[[i]]$`Center`)>CentreMin[i]]
+    #fcs_raw[[i]] <- fcs_raw[[i]][exprs(fcs_raw[[i]]$`Center`)<CentreMax[i] & exprs(fcs_raw[[i]]$`Center`)>CentreMin[i]]
+    fcs_raw[[i]] <- fcs_raw[[i]][EventsToKeep[[i]],]
+  }
+
+  # Gate Gaussian Data
+  for (i in 1:length(filesToOpen)){
+    FCSDATAGaussians[[i]] <- FCSDATAGaussians[[i]][EventsToKeep[[i]],]
   }
 
   # Advance progress bar
@@ -526,15 +600,16 @@ if (tclvalue(ret_var) != "OK") {
   # Get density plot of Offset
   Offset_Density <- NULL
   for (i in 1:length(filesToOpen)){
-    Offset_Density[[i]] <-  density(exprs(fcs_raw[[i]]$`Offset`))
+    #Offset_Density[[i]] <-  density(exprs(fcs_raw[[i]]$`Offset`))
+    Offset_Density[[i]] <-  density(FCSDATAGaussians[[i]]$Offset)
   }
 
   # Flatten out the curve to remove the low peak and correct false detection of minimum value
   for (i in 1:length(filesToOpen)){
-    Offset_Density[[i]]$y[Offset_Density[[i]]$x < 50] <- 0
+    Offset_Density[[i]]$y[Offset_Density[[i]]$x < 40] <- 0
   }
 
-  #plot(Offset_Density[[1]]$x, Offset_Density[[1]]$y)
+  #plot(Offset_Density[[1]]$x, Offset_Density[[1]]$y, log="x")
 
   # Set min and max based on spread
   OffsetMin <- NULL
@@ -548,39 +623,47 @@ if (tclvalue(ret_var) != "OK") {
     #OffsetSigma[i] <- OffsetMode[i] - OffsetGauss[i]
     #OffsetMin[i] <- OffsetMode[i] - 2.5 * OffsetSigma[i]
     #OffsetMax[i] <- OffsetMode[i] + 2.5 * OffsetSigma[i]
-    OffsetMin[i] <- min(Offset_Density[[i]]$x[Offset_Density[[i]]$y>max(Offset_Density[[i]]$y)*.15])
-    OffsetMax[i] <- max(Offset_Density[[i]]$x[Offset_Density[[i]]$y>max(Offset_Density[[i]]$y)*.15])
+    OffsetMin[i] <- min(Offset_Density[[i]]$x[Offset_Density[[i]]$y>max(Offset_Density[[i]]$y)*.1])
+    OffsetMax[i] <- max(Offset_Density[[i]]$x[Offset_Density[[i]]$y>max(Offset_Density[[i]]$y)*.1])
   }
 
 
   # Clip any min to a low value - just in case density detection has found an incorrect location - this happens in bad datasets
   #OffsetMin[OffsetMin < 50] <- 50
 
+  # Get List of Rows (Events) to keep
+  EventsToKeep <- NULL
+  for (i in 1:length(filesToOpen)){
+    EventsToKeep[[i]] <- which(FCSDATAGaussians[[i]]$Offset < OffsetMax[i] & FCSDATAGaussians[[i]]$Offset > OffsetMin[i])
+  }
+
   # % Cells After Offset gating
   AfterOffset <- NULL
   for (i in 1:length(filesToOpen)){
-    AfterOffset[i] <- sum(exprs(fcs_raw[[i]]$`Offset`)<OffsetMax[i]
-                          & exprs(fcs_raw[[i]]$`Offset`)>OffsetMin[i])/length(exprs(fcs_raw[[i]]$`Offset`))
+    #AfterOffset[i] <- sum(exprs(fcs_raw[[i]]$`Offset`)<OffsetMax[i] & exprs(fcs_raw[[i]]$`Offset`)>OffsetMin[i])/length(exprs(fcs_raw[[i]]$`Offset`))
+    AfterOffset[i] <- length(EventsToKeep[[i]]) / length(exprs(fcs_raw[[i]]$`Offset`))
   }
 
   # Get % of original
   FinalEvents <- NULL
   for (i in 1:length(filesToOpen)){
-    FinalEvents[i] <- length(exprs(fcs_raw[[i]]$`Time`)) * AfterOffset[i]
-
-    FinalEvents[i] <- FinalEvents[i]/OrigEvents[i]
+    #FinalEvents[i] <- length(exprs(fcs_raw[[i]]$`Time`)) * AfterOffset[i]
+    #FinalEvents[i] <- FinalEvents[i]/OrigEvents[i]
+    FinalEvents[i] <- length(EventsToKeep[[i]]) / OrigEvents[i]
   }
 
   # Get Y axis for plots
-  OffsetYAxis <- round((mean(OffsetMax) - mean(OffsetMin)) * 5,-1)
+  #OffsetYAxis <- round((mean(OffsetMax) - mean(OffsetMin)) * 4,-1)
+  OffsetYAxis <- round(mean(OffsetMax) * 1.1,0)
 
   options(warn=-1)
   ## Plot x as Time and Y as Offset
   OffsetPlot <- list()
   for (i in 1:length(filesToOpen)){
-  OffsetPlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Offset)) +
+  #OffsetPlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Offset)) +
+  OffsetPlot[[i]] <- ggplot(FCSDATAGaussians[[i]][RandEvents[[i]],], aes(x=Time/TimeDiv, y=Offset)) +
     # Only label 0 and max on X Axis
-    scale_x_continuous(breaks=seq(0,maxtime[i],maxtime[i])) +
+    scale_x_continuous(breaks=seq(0,round(maxtime[i],1),round(maxtime[i]/2,1))) +
     # Plot all points
     geom_point(shape=".",alpha=0.5)+
     # Fill with transparent colour fill using density stats
@@ -590,6 +673,8 @@ if (tclvalue(ret_var) != "OK") {
     scale_fill_gradientn(colours=colfunc(128)) +
     # Force Y axis to start at zero and stop at maxEvent
     ylim(0,OffsetYAxis) +
+    # Log Scale
+    #scale_y_log10(labels = scales::trans_format('log10',scales::math_format(10^.x))) +
     # Hide Y axis values if desired
     #theme(axis.text.y = element_blank(), axis.ticks = element_blank()) +
     # Hide legend
@@ -602,13 +687,20 @@ if (tclvalue(ret_var) != "OK") {
     xlab(NULL) +
     #xlab("Time (min)")+
   ggtitle(paste(round(AfterOffset[i]*100,1)," % (", round(FinalEvents[i]*100,1), " % of total)",sep="")) +
-    theme(plot.title = element_text(size=8))
+    theme(plot.title = element_text(size=8))+
+    coord_cartesian(expand = FALSE)
   }
   options(warn=0)
 
-  # Gate Offset
+  # Gate Centre
   for (i in 1:length(filesToOpen)){
-    fcs_raw[[i]] <- fcs_raw[[i]][exprs(fcs_raw[[i]]$`Offset`)<OffsetMax[i] & exprs(fcs_raw[[i]]$`Offset`)>OffsetMin[i]]
+    #fcs_raw[[i]] <- fcs_raw[[i]][exprs(fcs_raw[[i]]$`Offset`)<OffsetMax[i] & exprs(fcs_raw[[i]]$`Offset`)>OffsetMin[i]]
+    fcs_raw[[i]] <- fcs_raw[[i]][EventsToKeep[[i]],]
+  }
+
+  # Gate Gaussian Data
+  for (i in 1:length(filesToOpen)){
+    FCSDATAGaussians[[i]] <- FCSDATAGaussians[[i]][EventsToKeep[[i]],]
   }
 
   # Advance progress bar
@@ -640,7 +732,8 @@ if (tclvalue(ret_var) != "OK") {
 
   Residual_Density <- NULL
   for (i in 1:length(filesToOpen)){
-    Residual_Density[[i]] <-  density(exprs(fcs_raw[[i]]$`Residual`))
+    #Residual_Density[[i]] <-  density(exprs(fcs_raw[[i]]$`Residual`))
+    Residual_Density[[i]] <-  density(FCSDATAGaussians[[i]]$Residual)
   }
 
   # Mode, Gauss and Sigma work well on most data, but not concatenated where there are breaks!
@@ -655,41 +748,49 @@ if (tclvalue(ret_var) != "OK") {
     #ResidualSigma[i] <- ResidualMode[i] - ResidualGauss[i]
     #ResidualMin[i] <- ResidualMode[i] - 2 * ResidualSigma[i]
     #ResidualMax[i] <- ResidualMode[i] + 2.5 * ResidualSigma[i]
-    ResidualMin[i] <- min(Residual_Density[[i]]$x[Residual_Density[[i]]$y>max(Residual_Density[[i]]$y)*.3])
-    ResidualMax[i] <- max(Residual_Density[[i]]$x[Residual_Density[[i]]$y>max(Residual_Density[[i]]$y)*.3])
+    ResidualMin[i] <- min(Residual_Density[[i]]$x[Residual_Density[[i]]$y>max(Residual_Density[[i]]$y)*.15])
+    ResidualMax[i] <- max(Residual_Density[[i]]$x[Residual_Density[[i]]$y>max(Residual_Density[[i]]$y)*.15])
   }
 
-  #plot(Residual_Density[[1]]$x, Residual_Density[[1]]$y)
+  #plot(Residual_Density[[1]]$x, Residual_Density[[1]]$y, log="x")
 
 
   # Clip any low values - just in case density detection has found a wrong value
   ResidualMin[ResidualMin<0] <- 0
 
+  # Get List of Rows (Events) to keep
+  EventsToKeep <- NULL
+  for (i in 1:length(filesToOpen)){
+    EventsToKeep[[i]] <- which(FCSDATAGaussians[[i]]$Residual < ResidualMax[i] & FCSDATAGaussians[[i]]$Residual > ResidualMin[i])
+  }
+
   # % Cells After Residual gating
   AfterResidual <- NULL
   for (i in 1:length(filesToOpen)){
-    AfterResidual[i] <- sum(exprs(fcs_raw[[i]]$`Residual`)<ResidualMax[i]
-                            & exprs(fcs_raw[[i]]$`Residual`)>ResidualMin[i])/length(exprs(fcs_raw[[i]]$`Residual`))
+    #AfterResidual[i] <- sum(exprs(fcs_raw[[i]]$`Residual`)<ResidualMax[i] & exprs(fcs_raw[[i]]$`Residual`)>ResidualMin[i])/length(exprs(fcs_raw[[i]]$`Residual`))
+    AfterResidual[i] <- length(EventsToKeep[[i]]) / length(exprs(fcs_raw[[i]]$`Residual`))
   }
 
   # Get % of original
   FinalEvents <- NULL
   for (i in 1:length(filesToOpen)){
-    FinalEvents[i] <- length(exprs(fcs_raw[[i]]$`Time`)) * AfterResidual[i]
-
-    FinalEvents[i] <- FinalEvents[i]/OrigEvents[i]
+    #FinalEvents[i] <- length(exprs(fcs_raw[[i]]$`Time`)) * AfterResidual[i]
+    #FinalEvents[i] <- FinalEvents[i]/OrigEvents[i]
+    FinalEvents[i] <- length(EventsToKeep[[i]]) / OrigEvents[i]
   }
 
   # Get Scale for Y axis
-  ResidualYAxis <- round((mean(ResidualMax)-mean(ResidualMin)) * 3,-2)
+  #ResidualYAxis <- round((mean(ResidualMax)-mean(ResidualMin)) * 3,-2)
+  ResidualYAxis <- round(mean(ResidualMax) * 1.1,)
 
   options(warn=-1)
   ## Plot x as Time and Y as Residual
   ResidualPlot <- list()
   for (i in 1:length(filesToOpen)){
-  ResidualPlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Residual)) +
+  #ResidualPlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Residual)) +
+    ResidualPlot[[i]] <- ggplot(FCSDATAGaussians[[i]][RandEvents[[i]],], aes(x=Time/TimeDiv, y=Residual)) +
     # Only label 0 and max on X Axis
-    scale_x_continuous(breaks=seq(0,maxtime[i],maxtime[i])) +
+      scale_x_continuous(breaks=seq(0,round(maxtime[i],1),round(maxtime[i]/2,1))) +
     # Plot all points
     geom_point(shape=".",alpha=0.5)+
     # Fill with transparent colour fill using density stats
@@ -699,6 +800,8 @@ if (tclvalue(ret_var) != "OK") {
     scale_fill_gradientn(colours=colfunc(128)) +
     # Force Y axis to start at zero and stop at maxEvent
     ylim(0,ResidualYAxis) +
+    # Log Scale
+    #scale_y_log10(labels = scales::trans_format('log10',scales::math_format(10^.x))) +
     # Hide Y axis values if desired
     #theme(axis.text.y = element_blank(), axis.ticks = element_blank()) +
     # Hide legend
@@ -711,14 +814,20 @@ if (tclvalue(ret_var) != "OK") {
     xlab(NULL) +
     #xlab("Time (min)")+
   ggtitle(paste(round(AfterResidual[i]*100,1)," % (", round(FinalEvents[i]*100,1), " % of total)",sep="")) +
-    theme(plot.title = element_text(size=8))
+    theme(plot.title = element_text(size=8))+
+      coord_cartesian(expand = FALSE)
   }
   options(warn=0)
 
   # Gate Residual
   for (i in 1:length(filesToOpen)){
-    fcs_raw[[i]] <- fcs_raw[[i]][exprs(fcs_raw[[i]]$`Residual`)<ResidualMax[i]
-                                 & exprs(fcs_raw[[i]]$`Residual`)>ResidualMin[i]]
+    #fcs_raw[[i]] <- fcs_raw[[i]][exprs(fcs_raw[[i]]$`Residual`)<ResidualMax[i]& exprs(fcs_raw[[i]]$`Residual`)>ResidualMin[i]]
+    fcs_raw[[i]] <- fcs_raw[[i]][EventsToKeep[[i]],]
+  }
+
+  # Gate Gaussian Data
+  for (i in 1:length(filesToOpen)){
+    FCSDATAGaussians[[i]] <- FCSDATAGaussians[[i]][EventsToKeep[[i]],]
   }
 
 
@@ -751,16 +860,17 @@ if (tclvalue(ret_var) != "OK") {
 
   Width_Density <- NULL
   for (i in 1:length(filesToOpen)){
-    Width_Density[[i]] <-  density(exprs(fcs_raw[[i]]$`Width`))
+    #Width_Density[[i]] <-  density(exprs(fcs_raw[[i]]$`Width`))
+    Width_Density[[i]] <-  density(FCSDATAGaussians[[i]]$Width)
   }
 
   # Flatten out the curve to remove the low peak and correct false detection of minimum value
-  for (i in 1:length(filesToOpen)){
-    Width_Density[[i]]$y[Width_Density[[i]]$x < 30] <- 0
-  }
+  #for (i in 1:length(filesToOpen)){
+  #  Width_Density[[i]]$y[Width_Density[[i]]$x < 30] <- 0
+  #}
 
 
-  #plot(Width_Density[[3]]$x, Width_Density[[3]]$y)
+  #plot(Width_Density[[3]]$x, Width_Density[[3]]$y, log="x")
 
   # NOTE - unlike other parameters, Width has a 3x Sigma for the max.
   #WidthMode <- NULL
@@ -774,39 +884,47 @@ if (tclvalue(ret_var) != "OK") {
     #WidthSigma[i] <- WidthMode[i] - WidthGauss[i]
     #WidthMin[i] <- WidthMode[i] - 2 * WidthSigma[i]
     #WidthMax[i] <- WidthMode[i] + 3 * WidthSigma[i]
-    WidthMin[i] <- min(Width_Density[[i]]$x[Width_Density[[i]]$y > max(Width_Density[[i]]$y)*.3])
-    WidthMax[i] <- max(Width_Density[[i]]$x[Width_Density[[i]]$y > max(Width_Density[[i]]$y)*.3])
+    WidthMin[i] <- min(Width_Density[[i]]$x[Width_Density[[i]]$y > max(Width_Density[[i]]$y)*.15])
+    WidthMax[i] <- max(Width_Density[[i]]$x[Width_Density[[i]]$y > max(Width_Density[[i]]$y)*.15])
   }
 
 
   # Clip any low min to a low value - useful for bad datasets
   #WidthMin[WidthMin < 30] <- 30
 
+  # Get List of Rows (Events) to keep
+  EventsToKeep <- NULL
+  for (i in 1:length(filesToOpen)){
+    EventsToKeep[[i]] <- which(FCSDATAGaussians[[i]]$Width < WidthMax[i] & FCSDATAGaussians[[i]]$Width > WidthMin[i])
+  }
+
   # % Cells After Residual gating
   AfterWidth <- NULL
   for (i in 1:length(filesToOpen)){
-    AfterWidth[i] <- sum(exprs(fcs_raw[[i]]$`Width`) < WidthMax[i]
-                            & exprs(fcs_raw[[i]]$`Width`) > WidthMin[i])/length(exprs(fcs_raw[[i]]$`Width`))
+    #AfterWidth[i] <- sum(exprs(fcs_raw[[i]]$`Width`) < WidthMax[i] & exprs(fcs_raw[[i]]$`Width`) > WidthMin[i])/length(exprs(fcs_raw[[i]]$`Width`))
+    AfterWidth[i] <- length(EventsToKeep[[i]]) / length(exprs(fcs_raw[[i]]$`Width`))
   }
 
   # Get % of original
   FinalEvents <- NULL
   for (i in 1:length(filesToOpen)){
-    FinalEvents[i] <- length(exprs(fcs_raw[[i]]$`Time`)) * AfterWidth[i]
-
-    FinalEvents[i] <- FinalEvents[i]/OrigEvents[i]
+    #FinalEvents[i] <- length(exprs(fcs_raw[[i]]$`Time`)) * AfterWidth[i]
+    #FinalEvents[i] <- FinalEvents[i]/OrigEvents[i]
+    FinalEvents[i] <- length(EventsToKeep[[i]]) /OrigEvents[i]
   }
 
   # Get Mode for Y axis
-  WidthYAxis <- round((mean(WidthMax)-mean(WidthMin)) * 4,-2)
+  #WidthYAxis <- round((mean(WidthMax)-mean(WidthMin)) * 4,-2)
+  WidthYAxis <- round(mean(WidthMax) * 1.1,0)
 
   options(warn=-1)
   ## Plot x as Time and Y as Width
   WidthPlot <- list()
   for (i in 1:length(filesToOpen)){
-    WidthPlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Width)) +
+    #WidthPlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Width)) +
+    WidthPlot[[i]] <- ggplot(FCSDATAGaussians[[i]][RandEvents[[i]],], aes(x=Time/TimeDiv, y=Width)) +
       # Only label 0 and max on X Axis
-      scale_x_continuous(breaks=seq(0,maxtime[i],maxtime[i])) +
+      scale_x_continuous(breaks=seq(0,round(maxtime[i],1),round(maxtime[i]/2,1))) +
       # Plot all points
       geom_point(shape=".",alpha=0.5)+
       # Fill with transparent colour fill using density stats
@@ -816,6 +934,8 @@ if (tclvalue(ret_var) != "OK") {
       scale_fill_gradientn(colours=colfunc(128)) +
       # Force Y axis to start at zero and stop at maxEvent
       ylim(0,WidthYAxis) +
+      # Log Scale
+      #scale_y_log10(labels = scales::trans_format('log10',scales::math_format(10^.x))) +
       # Hide Y axis values if desired
       #theme(axis.text.y = element_blank(), axis.ticks = element_blank()) +
       # Hide legend
@@ -828,14 +948,21 @@ if (tclvalue(ret_var) != "OK") {
       xlab(NULL) +
       #xlab("Time (min)")+
       ggtitle(paste(round(AfterWidth[i]*100,1)," % (", round(FinalEvents[i]*100,1), " % of total)",sep="")) +
-      theme(plot.title = element_text(size=8))
+      theme(plot.title = element_text(size=8))+
+      coord_cartesian(expand=FALSE)
   }
   options(warn=0)
 
   # Gate Width
   for (i in 1:length(filesToOpen)){
-    fcs_raw[[i]] <- fcs_raw[[i]][exprs(fcs_raw[[i]]$`Width`) < WidthMax[i]
-                                 & exprs(fcs_raw[[i]]$`Width`) > WidthMin[i]]
+    #fcs_raw[[i]] <- fcs_raw[[i]][exprs(fcs_raw[[i]]$`Width`) < WidthMax[i] & exprs(fcs_raw[[i]]$`Width`) > WidthMin[i]]
+    fcs_raw[[i]] <- fcs_raw[[i]][EventsToKeep[[i]],]
+  }
+
+
+  # Gate Gaussian Data
+  for (i in 1:length(filesToOpen)){
+    FCSDATAGaussians[[i]] <- FCSDATAGaussians[[i]][EventsToKeep[[i]],]
   }
 
 
@@ -875,45 +1002,85 @@ if (tclvalue(ret_var) != "OK") {
   UserBeadChannels <- paste(as.numeric(substr(UserBeadChannels,1,3)), collapse = "|")
   Bead_Channels <- params$name[grepl(UserBeadChannels,params$name)]
 
+  # Create new transformed data for bead channels
+  FCSDATABeads <- NULL
+  for (i in 1:length(filesToOpen)){
+    FCSDATABeads[[i]] <- as.data.frame(asinh(exprs(fcs_raw[[i]][,Bead_Channels])/cofactor))
+    for (j in 1:length(Bead_Channels)){
+      FCSDATABeads[[i]][,j] <- rescale(FCSDATABeads[[i]][,j],to = Scale)
+    }
+  }
+  # Add Time
+  for (i in 1:length(filesToOpen)){
+    FCSDATABeads[[i]]$Time <- exprs(fcs_raw[[i]][,TimePos])
+  }
+
   # Calculate density of these channels for each file
   Bead_Density <- NULL
   for (j in Bead_Channels){
     for (i in 1:length(filesToOpen)){
-    Bead_Density[[i]] <-  density(exprs(fcs_raw[[i]][,j]))
+    #Bead_Density[[i]] <-  density(exprs(fcs_raw[[i]][,j]))
+    Bead_Density[[i]] <- density(FCSDATABeads[[i]][,j])
     # Flatten the curves for the areas likely to be cells and above the bead region
-    Bead_Density[[i]]$y[Bead_Density[[i]]$x<150] <- 0.001
-    Bead_Density[[i]]$y[Bead_Density[[i]]$x>3000] <- 0.001
+    #Bead_Density[[i]]$y[Bead_Density[[i]]$x<150] <- 0.001
+    #Bead_Density[[i]]$y[Bead_Density[[i]]$x>3000] <- 0.001
+    Bead_Density[[i]]$y[Bead_Density[[i]]$x<5000] <- 0
     }
     # Name as per bead channel
     assign(j, Bead_Density)
   }
 
   #Plots:
-  #plot(Ce140Di[[1]]$x,Ce140Di[[1]]$y, log="y")
-  #plot(Eu151Di[[1]]$x,Eu151Di[[1]]$y, log="y")
-  #plot(Eu153Di[[1]]$x,Eu153Di[[1]]$y, log="y")
-  #plot(Ho165Di[[1]]$x,Ho165Di[[1]]$y, log="y")
-  #plot(Lu175Di[[1]]$x,Lu175Di[[1]]$y, log="y")
+  #plot(Ce140Di[[1]]$x,Ce140Di[[1]]$y, log="x")
+  #plot(Ce142Di[[1]]$x,Ce142Di[[1]]$y, log="x")
+  #plot(Eu151Di[[1]]$x,Eu151Di[[1]]$y, log="x")
+  #plot(Eu153Di[[1]]$x,Eu153Di[[1]]$y, log="x")
+  #plot(Ho165Di[[1]]$x,Ho165Di[[1]]$y, log="x")
+  #plot(Lu175Di[[1]]$x,Lu175Di[[1]]$y, log="x")
+  #plot(Lu176Di[[1]]$x,Lu176Di[[1]]$y, log="x")
 
 
 
   # Find the "cleanest" bead channel to use for bead gating -
   # i.e. the one with the lowest density in the region between cells and beads
-  MinCellPeak <- NULL
+  #MinCellPeak <- NULL
+  #for (j in Bead_Channels){
+  #  for (i in 1:length(filesToOpen)){
+  #  MinCellPeak[i] <- min(get(j)[[i]]$y)
+  #  }
+  #  assign(j, MinCellPeak)
+  #}
+  # Now using asinh data, the sharpness of the peak is better
+  BeadPeak <- NULL
   for (j in Bead_Channels){
     for (i in 1:length(filesToOpen)){
-    MinCellPeak[i] <- min(get(j)[[i]]$y)
+      BeadPeak[i]<- max(get(j)[[i]]$y)
     }
-    assign(j, MinCellPeak)
+    # Rename as per bead channel
+    assign(paste0(j,"_BeadPeak"), BeadPeak)
+  }
+  #Find FWHM (actually at 25%)
+  BeadFWHM <- NULL
+  for (j in Bead_Channels){
+    for (i in 1:length(filesToOpen)){
+      BeadFWHM[i] <- max(get(j)[[i]]$x[get(j)[[i]]$y > get(paste0(j,"_BeadPeak"))[[i]]/4]) - min(get(j)[[i]]$x[get(j)[[i]]$y > get(paste0(j,"_BeadPeak"))[[i]]/4])
+    }
+    assign(paste0(j,"_FWHM"), BeadFWHM)
   }
 
   # Mean across all files
-  for (i in 1:length(Bead_Channels)){
-    MinCellPeak[i] <- mean(get(Bead_Channels[i]))
+  #for (i in 1:length(Bead_Channels)){
+  #  MinCellPeak[i] <- mean(get(Bead_Channels[i]))
+  #}
+  MeanFWHM <- NULL
+  for (i in Bead_Channels){
+    MeanFWHM[i] <- mean(get(paste0(i,"_FWHM")))
   }
 
+
   # Channel to use as Bead Gate
-  Channel_To_Gate <- Bead_Channels[grepl(min(MinCellPeak), MinCellPeak)]
+  #Channel_To_Gate <- Bead_Channels[grepl(min(MinCellPeak), MinCellPeak)]
+  Channel_To_Gate <- Bead_Channels[grepl(min(MeanFWHM), MeanFWHM)]
 
   # Just in case more than one detected
   Channel_To_Gate <- Channel_To_Gate[1]
@@ -921,23 +1088,30 @@ if (tclvalue(ret_var) != "OK") {
   #Recreate Bead Density for this Channel Only
   Bead_Density <- NULL
     for (i in 1:length(filesToOpen)){
-      Bead_Density[[i]] <-  density(exprs(fcs_raw[[i]][,Channel_To_Gate]))
+      #Bead_Density[[i]] <-  density(exprs(fcs_raw[[i]][,Channel_To_Gate]))
+      Bead_Density[[i]] <-  density(FCSDATABeads[[i]][,Channel_To_Gate])
       # Flatten the curves for the areas likely to be cells and above the bead region
-      Bead_Density[[i]]$y[Bead_Density[[i]]$x<150] <- 0.001
-      Bead_Density[[i]]$y[Bead_Density[[i]]$x>3000] <- 0.001
+      #Bead_Density[[i]]$y[Bead_Density[[i]]$x<150] <- 0.001
+      #Bead_Density[[i]]$y[Bead_Density[[i]]$x>3000] <- 0.001
+      #Bead_Density[[i]]$y[Bead_Density[[i]]$x<5000] <- 0
+      Bead_Density[[i]]$y[Bead_Density[[i]]$x<100] <- 0
     }
 
-  #plot(Bead_Density[[1]]$x, Bead_Density[[1]]$y, log="y")
+  #plot(Bead_Density[[5]]$x, Bead_Density[[5]]$y, log="x")
 
-  # Get peak and FWHM for bead channels (safer than using lower values due to possible signal in other channels)
-  NotBeadMax <- NULL
+  # Find centre of point between beads and cells
+  BeadMax <- NULL
+  CellMax <- NULL
+  #NotBeadMax <- NULL
   #NotBeadMid <- NULL
   #NotBeadMin <- NULL
   for (i in 1:length(filesToOpen)){
-    #NotBeadMax[i] <- min(Bead_Density[[i]]$x[Bead_Density[[i]]$y > max(Bead_Density[[i]]$y)*.99])
-    NotBeadMax[i] <- min(Bead_Density[[i]]$x[Bead_Density[[i]]$y == min(Bead_Density[[i]]$y)])
-  #  NotBeadMid[i] <- min(Bead_Density[[i]]$x[Bead_Density[[i]]$y > max(Bead_Density[[i]]$y)*.5])
-  #  NotBeadMin[i] <- min(Bead_Density[[i]]$x[Bead_Density[[i]]$y > max(Bead_Density[[i]]$y)*.01])
+    #NotBeadMax[i] <- min(Bead_Density[[i]]$x[Bead_Density[[i]]$y == max(Bead_Density[[i]]$y)])
+   #NotBeadMax[i] <- min(Bead_Density[[i]]$x[Bead_Density[[i]]$y > max(Bead_Density[[i]]$y)*0.05])
+    #NotBeadMid[i] <- min(Bead_Density[[i]]$x[Bead_Density[[i]]$y > max(Bead_Density[[i]]$y)*.5])
+    #NotBeadMin[i] <- min(Bead_Density[[i]]$x[Bead_Density[[i]]$y > max(Bead_Density[[i]]$y)*.05])
+    BeadMax[i] <- Bead_Density[[i]]$x[Bead_Density[[i]]$y == max(Bead_Density[[i]]$y[Bead_Density[[i]]$x>5000])]
+    CellMax[i] <- Bead_Density[[i]]$x[Bead_Density[[i]]$y == max(Bead_Density[[i]]$y[Bead_Density[[i]]$x<5000])]
   }
 
   # Set the cutoff point to be a multiple of this width
@@ -946,25 +1120,35 @@ if (tclvalue(ret_var) != "OK") {
   # Set at midpoint between min and max
   #NotBeadMax <- mean(c(NotBeadMin,NotBeadMax))
 
-  #NotBeadMax <- NULL
+  # Set cutoff to be halfway between cells and beads
+  NotBeadMax <- colMeans(rbind(CellMax, BeadMax))
+
+  # Get List of Rows (Events) to keep
+  EventsToKeep <- NULL
+  for (i in 1:length(filesToOpen)){
+    EventsToKeep[[i]] <- which(FCSDATABeads[[i]][,Channel_To_Gate] < NotBeadMax[i])
+  }
+
   NotBeadsPop <- NULL
   for (i in 1:length(filesToOpen)){
     # % Cells After Not-Beads gating
-    NotBeadsPop[i] <- sum(exprs(fcs_raw[[i]][,Channel_To_Gate]) < NotBeadMax[i])/length(exprs(fcs_raw[[i]][,Channel_To_Gate]))
+    #NotBeadsPop[i] <- sum(exprs(fcs_raw[[i]][,Channel_To_Gate]) < NotBeadMax[i])/length(exprs(fcs_raw[[i]][,Channel_To_Gate]))
+    NotBeadsPop[i] <- length(EventsToKeep[[i]]) / length(exprs(fcs_raw[[i]][,Channel_To_Gate]))
   }
 
   # Get % of original
   FinalEvents <- NULL
   for (i in 1:length(filesToOpen)){
-    FinalEvents[i] <- length(exprs(fcs_raw[[i]]$`Time`)) * NotBeadsPop[i]
-
-    FinalEvents[i] <- FinalEvents[i]/OrigEvents[i]
+    #FinalEvents[i] <- length(exprs(fcs_raw[[i]]$`Time`)) * NotBeadsPop[i]
+    #FinalEvents[i] <- FinalEvents[i]/OrigEvents[i]
+    FinalEvents[i] <- length(EventsToKeep[[i]]) / OrigEvents[i]
   }
 
 
   # Needed to create a new data frame in order to plot the Bead Channel
   # Couldn't find a way to reference the Bead_Channel as the y variable in the ggplot aes code
-  Bead_Plot_Data <- as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],c("Time", Channel_To_Gate)]))
+  #Bead_Plot_Data <- as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],c("Time", Channel_To_Gate)]))
+  Bead_Plot_Data <- FCSDATABeads[[i]][RandEvents[[i]],c("Time", Channel_To_Gate)]
 
   options(warn=-1)
   ## Plot x as Time and Y as bead channel
@@ -974,7 +1158,7 @@ if (tclvalue(ret_var) != "OK") {
   #NotBeadsPlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Ce140Di)) +
   NotBeadsPlot[[i]] <- ggplot(Bead_Plot_Data, aes(x=Time/TimeDiv, y = Bead_Plot_Data[,2])) +
     # Only label 0 and max on X Axis
-    scale_x_continuous(breaks=seq(0,maxtime[i],maxtime[i])) +
+    scale_x_continuous(breaks=seq(0,round(maxtime[i],1),round(maxtime[i]/2,1))) +
     # Plot all points
     geom_point(shape=".",alpha=1)+
     # Fill with transparent colour fill using density stats
@@ -998,7 +1182,8 @@ if (tclvalue(ret_var) != "OK") {
     # Change X axis label
     xlab("Time (min)")+
     ggtitle(paste(round(NotBeadsPop[i]*100,1)," % (", round(FinalEvents[i]*100,1), " % of total)",sep="")) +
-    theme(plot.title = element_text(size=8))
+    theme(plot.title = element_text(size=8))+
+    coord_cartesian(expand = FALSE)
   #}
     # Name each plot with bead channel
     #assign(j, NotBeadsPlot)
@@ -1011,9 +1196,11 @@ if (tclvalue(ret_var) != "OK") {
     for (i in 1:length(filesToOpen)){
     #fcs_raw[[i]] <- fcs_raw[[i]][exprs(fcs_raw[[i]]$`Ce140Di`)<NotBeadMax[i]]
     #fcs_raw[[i]] <- fcs_raw[[i]][exprs(fcs_raw[[i]][,j]) < NotBeadMax[i]]
-      fcs_raw[[i]] <- fcs_raw[[i]][exprs(fcs_raw[[i]][,Channel_To_Gate]) < NotBeadMax[i]]
+      #fcs_raw[[i]] <- fcs_raw[[i]][exprs(fcs_raw[[i]][,Channel_To_Gate]) < NotBeadMax[i]]
+      fcs_raw[[i]] <- fcs_raw[[i]][EventsToKeep[[i]],]
     }
   #}
+
 
 
 } # End of beads removal loop
