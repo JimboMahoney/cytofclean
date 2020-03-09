@@ -69,7 +69,6 @@ At first, I started designing a Shiny GUI, which would allow me to show the plot
 <br>
 In addition, I've considered adding user-specified options, such as "filter strength" to allow tuning of the gates. This could probably be combined with an option to show the plots for feedback. But again, this somewhat defeats the purpose of the script, and you may as well gate manually if you want to change the output. Feedback would be welcome for anything that may be useful, as well as anything that may go wrong with the script once it's used on more datasets!
 
-
 ## Install / Run:
 
 1) Download and install [R](https://www.r-project.org/)
@@ -133,6 +132,25 @@ It then uses only this channel to remove the beads by setting the threshold to a
 Of all the processing that cytofclean does, this is the most likely to fail or produce eroneous results, hence it's optional.
 <br><br>
 Having said that, I haven't seen it fail on any of the data available to me, which includes data in which almost all the bead channels are also used as cell markers.
+
+## Comparison with original file and manual gating:
+
+As part of my testing, I compared an original file together with cytofclean with bead removal; without bead removal and manual gating using Gaussian paramaters and manual gating of Gaussian parameters and cells.
+<br><br>
+Using my other script, [NRS](https://github.com/JimboMahoney/FCS-Non-Redundancy-Score), the following can be seen:
+<br><br>
+
+<img src="https://raw.githubusercontent.com/JimboMahoney/cytofclean/master/2020_03_09_13_08_13_Window.png"
+  align="center" />
+  <br><br>
+
+The first file, shown with a red dot, is the original "raw" FCS as it comes off the CyTOF.
+The second (tan) and third (green) files are from cytofclean - the first is "fully gated", including bead removal. The second is only using Gaussian parameters.
+The fourth (blue) and fifth (green) files are manually gated - the first is gated only using Gaussians, the second is further gated to exclude beads.
+ 
+(I've deliberately hidden the markers, as they are confidential.)  
+
+
 
 ## Disclaimer:
 
