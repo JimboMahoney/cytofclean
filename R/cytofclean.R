@@ -30,6 +30,10 @@
 #  install.packages("scales", dependencies = TRUE)
 #  library(scales)
 #}
+#if (!require("stats")) {
+#  install.packages("stats", dependencies = TRUE)
+#  library(stats)
+#}
 
 
 cytofclean_GUI <- function(){
@@ -183,7 +187,7 @@ tkgrid(tklabel(tt, text = ""), gate_beads, tklabel(tt, text = ""),padx = cell_wi
 tkgrid(tklabel(tt, text = ""), submit_button,
        quit_button, padx = cell_width)
 tkgrid.configure(quit_button, sticky = "w")
-tkgrid(tklabel(tt, text = ""),tklabel(tt, text = ""),tklabel(tt, text = "Version: 1.0 beta"))
+tkgrid(tklabel(tt, text = ""),tklabel(tt, text = ""),tklabel(tt, text = "Version: 1.0.1 beta"))
 
 tkwait.window(tt)
 
@@ -363,13 +367,6 @@ if (tclvalue(ret_var) != "OK") {
     EventMax[i] <- max(Event_Density[[i]]$x[Event_Density[[i]]$y>max(Event_Density[[i]]$y)*.1])
   }
 
-  # Hard cutoffs for Events - useful if datasets are poor
-  for (i in 1:length(filesToOpen)){
-    EventMax[i][EventMax[i]>50] <- 50
-    EventMin[i][EventMin[i]<10] <- 10
-  }
-
-
   # % Cells After Event gating
   AfterEvent <- NULL
   for (i in 1:length(filesToOpen)){
@@ -384,7 +381,7 @@ if (tclvalue(ret_var) != "OK") {
   for (i in 1:length(filesToOpen)){
   EventPlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Event_length)) +
     # Only label 0 and max on X Axis
-    scale_x_continuous(breaks=seq(0,round(maxtime[i],1),round(maxtime[i]/2,1))) +
+    scale_x_continuous(breaks=seq(0,maxtime[i],maxtime[i])) +
     # Plot all points
     geom_point(shape=".",alpha=1)+
     # Fill with transparent colour fill using density stats
@@ -484,8 +481,8 @@ if (tclvalue(ret_var) != "OK") {
     #CentreSigma[i] <- CentreMode[i] - CentreGauss[i]
     #CentreMin[i] <- CentreMode[i] - 1.5 * CentreSigma[i]
     #CentreMax[i] <- CentreMode[i] + 1.5 * CentreSigma[i]
-    CentreMin[i] <- min(Centre_Density[[i]]$x[Centre_Density[[i]]$y > max(Centre_Density[[i]]$y)*.1])
-    CentreMax[i] <- max(Centre_Density[[i]]$x[Centre_Density[[i]]$y > max(Centre_Density[[i]]$y)*.1])
+    CentreMin[i] <- min(Centre_Density[[i]]$x[Centre_Density[[i]]$y > max(Centre_Density[[i]]$y)*.05])
+    CentreMax[i] <- max(Centre_Density[[i]]$x[Centre_Density[[i]]$y > max(Centre_Density[[i]]$y)*.05])
   }
 
 
@@ -514,9 +511,7 @@ if (tclvalue(ret_var) != "OK") {
   }
 
   # Set Y axis for plots suitably
-  #CentreYAxis <- round((mean(CentreMax)-mean(CentreMin)) * 6,-2)
-  CentreYAxis <- round(mean(CentreMax) * 1.1,0)
-
+  CentreYAxis <- round((mean(CentreMax)-mean(CentreMin)) * 5,-2)
 
 
   options(warn=-1)
@@ -526,7 +521,7 @@ if (tclvalue(ret_var) != "OK") {
   #CentrePlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Center)) +
   CentrePlot[[i]] <- ggplot(FCSDATAGaussians[[i]][RandEvents[[i]],], aes(x=Time/TimeDiv, y=Center)) +
     # Only label 0 and max on X Axis
-    scale_x_continuous(breaks=seq(0,round(maxtime[i],1),round(maxtime[i]/2,1))) +
+    scale_x_continuous(breaks=seq(0,maxtime[i],maxtime[i])) +
     # Plot all points
     geom_point(shape=".",alpha=1)+
     # Fill with transparent colour fill using density stats
@@ -536,8 +531,6 @@ if (tclvalue(ret_var) != "OK") {
     scale_fill_gradientn(colours=colfunc(128)) +
     # Force Y axis to start at zero and stop at maxEvent
     ylim(0,CentreYAxis) +
-    # Log Scale
-    #scale_y_log10(limits=c(1,12000),labels = scales::trans_format('log10',scales::math_format(10^.x))) +
     # Hide Y axis values if desired
     #theme(axis.text.y = element_blank(), axis.ticks = element_blank()) +
     # Hide legend
@@ -620,8 +613,8 @@ if (tclvalue(ret_var) != "OK") {
     #OffsetSigma[i] <- OffsetMode[i] - OffsetGauss[i]
     #OffsetMin[i] <- OffsetMode[i] - 2.5 * OffsetSigma[i]
     #OffsetMax[i] <- OffsetMode[i] + 2.5 * OffsetSigma[i]
-    OffsetMin[i] <- min(Offset_Density[[i]]$x[Offset_Density[[i]]$y>max(Offset_Density[[i]]$y)*.1])
-    OffsetMax[i] <- max(Offset_Density[[i]]$x[Offset_Density[[i]]$y>max(Offset_Density[[i]]$y)*.1])
+    OffsetMin[i] <- min(Offset_Density[[i]]$x[Offset_Density[[i]]$y>max(Offset_Density[[i]]$y)*.05])
+    OffsetMax[i] <- max(Offset_Density[[i]]$x[Offset_Density[[i]]$y>max(Offset_Density[[i]]$y)*.05])
   }
 
 
@@ -650,8 +643,7 @@ if (tclvalue(ret_var) != "OK") {
   }
 
   # Get Y axis for plots
-  #OffsetYAxis <- round((mean(OffsetMax) - mean(OffsetMin)) * 4,-1)
-  OffsetYAxis <- round(mean(OffsetMax) * 1.1,0)
+  OffsetYAxis <- round((mean(OffsetMax) - mean(OffsetMin)) * 5,-1)
 
   options(warn=-1)
   ## Plot x as Time and Y as Offset
@@ -660,7 +652,7 @@ if (tclvalue(ret_var) != "OK") {
   #OffsetPlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Offset)) +
   OffsetPlot[[i]] <- ggplot(FCSDATAGaussians[[i]][RandEvents[[i]],], aes(x=Time/TimeDiv, y=Offset)) +
     # Only label 0 and max on X Axis
-    scale_x_continuous(breaks=seq(0,round(maxtime[i],1),round(maxtime[i]/2,1))) +
+    scale_x_continuous(breaks=seq(0,maxtime[i],maxtime[i])) +
     # Plot all points
     geom_point(shape=".",alpha=0.5)+
     # Fill with transparent colour fill using density stats
@@ -670,8 +662,6 @@ if (tclvalue(ret_var) != "OK") {
     scale_fill_gradientn(colours=colfunc(128)) +
     # Force Y axis to start at zero and stop at maxEvent
     ylim(0,OffsetYAxis) +
-    # Log Scale
-    #scale_y_log10(labels = scales::trans_format('log10',scales::math_format(10^.x))) +
     # Hide Y axis values if desired
     #theme(axis.text.y = element_blank(), axis.ticks = element_blank()) +
     # Hide legend
@@ -745,8 +735,8 @@ if (tclvalue(ret_var) != "OK") {
     #ResidualSigma[i] <- ResidualMode[i] - ResidualGauss[i]
     #ResidualMin[i] <- ResidualMode[i] - 2 * ResidualSigma[i]
     #ResidualMax[i] <- ResidualMode[i] + 2.5 * ResidualSigma[i]
-    ResidualMin[i] <- min(Residual_Density[[i]]$x[Residual_Density[[i]]$y>max(Residual_Density[[i]]$y)*.15])
-    ResidualMax[i] <- max(Residual_Density[[i]]$x[Residual_Density[[i]]$y>max(Residual_Density[[i]]$y)*.15])
+    ResidualMin[i] <- min(Residual_Density[[i]]$x[Residual_Density[[i]]$y>max(Residual_Density[[i]]$y)*.05])
+    ResidualMax[i] <- max(Residual_Density[[i]]$x[Residual_Density[[i]]$y>max(Residual_Density[[i]]$y)*.05])
   }
 
   #plot(Residual_Density[[1]]$x, Residual_Density[[1]]$y, log="x")
@@ -777,8 +767,7 @@ if (tclvalue(ret_var) != "OK") {
   }
 
   # Get Scale for Y axis
-  #ResidualYAxis <- round((mean(ResidualMax)-mean(ResidualMin)) * 3,-2)
-  ResidualYAxis <- round(mean(ResidualMax) * 1.1,)
+  ResidualYAxis <- round((mean(ResidualMax)-mean(ResidualMin)) * 3,-2)
 
   options(warn=-1)
   ## Plot x as Time and Y as Residual
@@ -787,7 +776,7 @@ if (tclvalue(ret_var) != "OK") {
   #ResidualPlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Residual)) +
     ResidualPlot[[i]] <- ggplot(FCSDATAGaussians[[i]][RandEvents[[i]],], aes(x=Time/TimeDiv, y=Residual)) +
     # Only label 0 and max on X Axis
-      scale_x_continuous(breaks=seq(0,round(maxtime[i],1),round(maxtime[i]/2,1))) +
+    scale_x_continuous(breaks=seq(0,maxtime[i],maxtime[i])) +
     # Plot all points
     geom_point(shape=".",alpha=0.5)+
     # Fill with transparent colour fill using density stats
@@ -797,8 +786,6 @@ if (tclvalue(ret_var) != "OK") {
     scale_fill_gradientn(colours=colfunc(128)) +
     # Force Y axis to start at zero and stop at maxEvent
     ylim(0,ResidualYAxis) +
-    # Log Scale
-    #scale_y_log10(labels = scales::trans_format('log10',scales::math_format(10^.x))) +
     # Hide Y axis values if desired
     #theme(axis.text.y = element_blank(), axis.ticks = element_blank()) +
     # Hide legend
@@ -881,8 +868,8 @@ if (tclvalue(ret_var) != "OK") {
     #WidthSigma[i] <- WidthMode[i] - WidthGauss[i]
     #WidthMin[i] <- WidthMode[i] - 2 * WidthSigma[i]
     #WidthMax[i] <- WidthMode[i] + 3 * WidthSigma[i]
-    WidthMin[i] <- min(Width_Density[[i]]$x[Width_Density[[i]]$y > max(Width_Density[[i]]$y)*.15])
-    WidthMax[i] <- max(Width_Density[[i]]$x[Width_Density[[i]]$y > max(Width_Density[[i]]$y)*.15])
+    WidthMin[i] <- min(Width_Density[[i]]$x[Width_Density[[i]]$y > max(Width_Density[[i]]$y)*.05])
+    WidthMax[i] <- max(Width_Density[[i]]$x[Width_Density[[i]]$y > max(Width_Density[[i]]$y)*.05])
   }
 
 
@@ -911,8 +898,7 @@ if (tclvalue(ret_var) != "OK") {
   }
 
   # Get Mode for Y axis
-  #WidthYAxis <- round((mean(WidthMax)-mean(WidthMin)) * 4,-2)
-  WidthYAxis <- round(mean(WidthMax) * 1.1,0)
+  WidthYAxis <- round((mean(WidthMax)-mean(WidthMin)) * 4,-2)
 
   options(warn=-1)
   ## Plot x as Time and Y as Width
@@ -921,7 +907,7 @@ if (tclvalue(ret_var) != "OK") {
     #WidthPlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Width)) +
     WidthPlot[[i]] <- ggplot(FCSDATAGaussians[[i]][RandEvents[[i]],], aes(x=Time/TimeDiv, y=Width)) +
       # Only label 0 and max on X Axis
-      scale_x_continuous(breaks=seq(0,round(maxtime[i],1),round(maxtime[i]/2,1))) +
+      scale_x_continuous(breaks=seq(0,maxtime[i],maxtime[i])) +
       # Plot all points
       geom_point(shape=".",alpha=0.5)+
       # Fill with transparent colour fill using density stats
@@ -931,8 +917,6 @@ if (tclvalue(ret_var) != "OK") {
       scale_fill_gradientn(colours=colfunc(128)) +
       # Force Y axis to start at zero and stop at maxEvent
       ylim(0,WidthYAxis) +
-      # Log Scale
-      #scale_y_log10(labels = scales::trans_format('log10',scales::math_format(10^.x))) +
       # Hide Y axis values if desired
       #theme(axis.text.y = element_blank(), axis.ticks = element_blank()) +
       # Hide legend
@@ -1155,7 +1139,7 @@ if (tclvalue(ret_var) != "OK") {
   #NotBeadsPlot[[i]] <- ggplot(as.data.frame(exprs(fcs_raw[[i]][RandEvents[[i]],])), aes(x=Time/TimeDiv, y=Ce140Di)) +
   NotBeadsPlot[[i]] <- ggplot(Bead_Plot_Data, aes(x=Time/TimeDiv, y = Bead_Plot_Data[,2])) +
     # Only label 0 and max on X Axis
-    scale_x_continuous(breaks=seq(0,round(maxtime[i],1),round(maxtime[i]/2,1))) +
+    scale_x_continuous(breaks=seq(0,maxtime[i],maxtime[i])) +
     # Plot all points
     geom_point(shape=".",alpha=1)+
     # Fill with transparent colour fill using density stats
@@ -1292,6 +1276,3 @@ if (tclvalue(ret_var) != "OK") {
   } # End of file check error loop
 } # End OK button
 }# End of function
-
-
-
