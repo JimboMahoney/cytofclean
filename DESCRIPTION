@@ -1,8 +1,8 @@
 Package: cytofclean
 Type: Package
 Title: Automatically Cleans Mass Cytometry (CyTOF) FCS files
-Version: 1.0
-Date: 2020-05-03
+Version: 1.0.1
+Date: 2020-03-25
 Author: James Wainwright
 Maintainer: James Wainwright <j.wainwright@qub.ac.uk>
 Description: 
@@ -21,4 +21,5 @@ Depends:
   flowCore,
   ggplot2,
   cowplot,
-  scales
+  scales,
+  stats
