@@ -8,32 +8,32 @@
 ### Packages
 ##################
 
-#if (!require("tcltk2")) {
+# if (!require("tcltk2")) {
 #  install.packages("tcltk2", dependencies = TRUE)
 #  library(tcltk2)
-#}
-#if (!require("flowCore")) {
+# }
+# if (!require("flowCore")) {
 #  if (!requireNamespace("BiocManager", quietly = TRUE))
 #    install.packages("BiocManager")
 #    BiocManager::install("flowCore")
 #    library(flowCore)
-#}
-#if (!require("ggplot2")) {
+# }
+# if (!require("ggplot2")) {
 #  install.packages("ggplot2", dependencies = TRUE)
 #  library(ggplot2)
-#}
-#if (!require("cowplot")) {
+# }
+# if (!require("cowplot")) {
 #  install.packages("cowplot", dependencies = TRUE)
 #  library(cowplot)
-#}
-#if (!require("scales")) {
+# }
+# if (!require("scales")) {
 #  install.packages("scales", dependencies = TRUE)
 #  library(scales)
-#}
-#if (!require("stats")) {
+# }
+# if (!require("stats")) {
 #  install.packages("stats", dependencies = TRUE)
 #  library(stats)
-#}
+# }
 
 
 cytofclean_GUI <- function(){
@@ -255,7 +255,7 @@ if (tclvalue(ret_var) != "OK") {
   }
 
 
-  #plot(density(FCSDATAGaussians$Center))
+  #plot(density(FCSDATAGaussians[[1]]$Center))
   #plot(density(FCSDATAGaussians$Offset))
   #plot(density(FCSDATAGaussians$Width))
   #plot(density(FCSDATAGaussians$Residual))
@@ -511,7 +511,8 @@ if (tclvalue(ret_var) != "OK") {
   }
 
   # Set Y axis for plots suitably
-  CentreYAxis <- round((mean(CentreMax)-mean(CentreMin)) * 5,-2)
+  #CentreYAxis <- round((mean(CentreMax)-mean(CentreMin)) * 5,-2)
+  CentreYAxis <- round(max(CentreMax) * 1.2,-2)
 
 
   options(warn=-1)
@@ -643,7 +644,8 @@ if (tclvalue(ret_var) != "OK") {
   }
 
   # Get Y axis for plots
-  OffsetYAxis <- round((mean(OffsetMax) - mean(OffsetMin)) * 5,-1)
+  #OffsetYAxis <- round((mean(OffsetMax) - mean(OffsetMin)) * 5,-1)
+  OffsetYAxis <- round(mean(OffsetMax) * 1.2,-1)
 
   options(warn=-1)
   ## Plot x as Time and Y as Offset
@@ -767,7 +769,8 @@ if (tclvalue(ret_var) != "OK") {
   }
 
   # Get Scale for Y axis
-  ResidualYAxis <- round((mean(ResidualMax)-mean(ResidualMin)) * 3,-2)
+  #ResidualYAxis <- round((mean(ResidualMax)-mean(ResidualMin)) * 3,-2)
+  ResidualYAxis <- round(mean(ResidualMax) * 1.2, -1)
 
   options(warn=-1)
   ## Plot x as Time and Y as Residual
@@ -854,7 +857,7 @@ if (tclvalue(ret_var) != "OK") {
   #}
 
 
-  #plot(Width_Density[[3]]$x, Width_Density[[3]]$y, log="x")
+  #plot(Width_Density[[1]]$x, Width_Density[[1]]$y, log="x")
 
   # NOTE - unlike other parameters, Width has a 3x Sigma for the max.
   #WidthMode <- NULL
@@ -898,7 +901,8 @@ if (tclvalue(ret_var) != "OK") {
   }
 
   # Get Mode for Y axis
-  WidthYAxis <- round((mean(WidthMax)-mean(WidthMin)) * 4,-2)
+  #WidthYAxis <- round((mean(WidthMax)-mean(WidthMin)) * 4,-2)
+  WidthYAxis <- round(mean(WidthMax) * 1.2,-1)
 
   options(warn=-1)
   ## Plot x as Time and Y as Width
