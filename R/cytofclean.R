@@ -187,7 +187,7 @@ tkgrid(tklabel(tt, text = ""), gate_beads, tklabel(tt, text = ""),padx = cell_wi
 tkgrid(tklabel(tt, text = ""), submit_button,
        quit_button, padx = cell_width)
 tkgrid.configure(quit_button, sticky = "w")
-tkgrid(tklabel(tt, text = ""),tklabel(tt, text = ""),tklabel(tt, text = "Version: 1.0.1 beta"))
+tkgrid(tklabel(tt, text = ""),tklabel(tt, text = ""),tklabel(tt, text = "Version: 1.0.2 beta"))
 
 tkwait.window(tt)
 
