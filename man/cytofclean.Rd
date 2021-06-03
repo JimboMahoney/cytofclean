@@ -23,5 +23,5 @@ cytofclean_GUI()
 \url{https://github.com/JimboMahoney/cytofclean}
 }
 \author{
-James Wainwright
+JimboMahoney
 }
