@@ -3,8 +3,8 @@ Type: Package
 Title: Automatically Cleans Mass Cytometry (CyTOF) FCS files
 Version: 1.0.2
 Date: 2020-09-17
-Author: James Wainwright
-Maintainer: James Wainwright <j.wainwright@qub.ac.uk>
+Author: JimboMahoney
+Maintainer: JimboMahoney
 Description: 
     Intended to save time analysing CyTOF files by automating the initial gating steps.
     A simple program that takes (normalised) FCS files from a CyTOF v3 (Helios) and automatically gates the data based
