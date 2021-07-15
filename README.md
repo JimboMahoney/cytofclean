@@ -1,6 +1,6 @@
 # CyTOFClean
 
-### Version 1.0.2 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)!
+### Version 1.0.2 beta - Please feed back any [issues](https://github.com/JimboMahoney/cytofclean/issues)! (Although I no longer work with mass/flow cytometry since early 2021).
 
 This is a small package to perform the following:
 
