@@ -261,8 +261,8 @@ if (tclvalue(ret_var) != "OK") {
   #plot(density(FCSDATAGaussians$Residual))
 
 
-  # Check for Event_length
-  if ("Event_length" %in% params$name == FALSE){
+  # Check for Gaussian
+  if ("Center" %in% params$name == FALSE){
     tkmessageBox(title = "Error!",
                  message = "Only Helios / CyTOF v3 files are supported!", type = "ok")
     # Close progress bar
